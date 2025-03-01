@@ -1,8 +1,8 @@
 export interface User {
-    iUserID?: number;
-    sUserName: string;
-    sFullName: string;
-    sEmail: string;
-    sPassword?: string;
-    sRole?: string;
+    iUserID?: number | null;
+    sUserName: string | null;
+    sFullName:  string | null;
+    sEmail: string | null;
+    sPassword?: string | null;
+    sRole?: string | null;
   }

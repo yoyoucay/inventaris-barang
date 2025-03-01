@@ -9,6 +9,7 @@ type UserContextType = {
     user: User | null;
     login: (token: string) => void;
     logout: () => void;
+    isAuthenticated: boolean; 
 };
 
 // Provide a default value
@@ -16,54 +17,76 @@ const defaultContextValue: UserContextType = {
     user: null,
     login: () => {},
     logout: () => {},
+    isAuthenticated: false,    
 };
 
 export const UserContext = createContext<UserContextType>(defaultContextValue);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null)
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-    // Check for a token in localStorage on initial load
     useEffect(() => {
         const token = localStorage.getItem('token');
+
         if (token) {
-            const decoded = jwt.decode(token) as User;
-            if (decoded) {
-                setUser({ 
-                    iUserID: decoded.iUserID, 
-                    sUserName: decoded.sUserName,
-                    sFullName: decoded.sFullName,
-                    sEmail: decoded.sEmail,
-                    sRole: decoded.sRole
-             });
+            try {
+                // Decode the token
+                const decoded = jwt.decode(token) as any;
+
+                if (decoded && decoded.user) {
+                    const { iUserID, sUserName, sFullName, sEmail, sRole } = decoded.user;
+
+                    // Set the user state
+                    setUser({ iUserID, sUserName, sFullName, sEmail, sRole });
+                    setIsAuthenticated(true); // Mark the user as authenticated
+                }
+            } catch (error) {
+                console.error('Error decoding token:', error);
+                logout(); // Clear invalid token
             }
         }
-    }, []);
+    }, []); // Run only once on mount
 
     const login = (token: string) => {
-        localStorage.setItem('token', token);
-        const decoded = jwt.decode(token) as User;
-        setUser({ 
-            iUserID: decoded.iUserID, 
-            sUserName: decoded.sUserName,
-            sFullName: decoded.sFullName,
-            sEmail: decoded.sEmail,
-            sRole: decoded.sRole
-     });
+        try {
+            // Decode the token
+            const decoded = jwt.decode(token) as any;
+
+            if (decoded && decoded.user) {
+                const { iUserID, sUserName, sFullName, sEmail, sRole } = decoded.user;
+
+                // Set the user state
+                setUser({ iUserID, sUserName, sFullName, sEmail, sRole });
+                setIsAuthenticated(true); // Mark the user as authenticated
+
+                // Store the token in localStorage
+                localStorage.setItem('token', token);
+            }
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            logout(); // Clear invalid token
+        }
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
+        // Clear the user state and token
         setUser(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem('token');
     };
 
     return (
-        <UserContext.Provider value={{ user, login, logout }}>
+        <UserContext.Provider value={{ user, login, logout, isAuthenticated }}>
             {children}
         </UserContext.Provider>
     );
 };
 
 export const useUser = () => {
-    return useContext(UserContext);
+    const context = useContext(UserContext);
+    if (context === undefined) {
+        throw new Error('useUser must be used within a UserProvider');
+    }
+    return context;
 };

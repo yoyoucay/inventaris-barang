@@ -4,9 +4,13 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
     const user = await request.json();
-    const result = await createUser(user);
-    console.log('result POST : ', result);
-    return NextResponse.json(result);
+    try {
+        const insertedId = await createUser(user);
+        return NextResponse.json({ message: 'User registered successfully', insertedId }, { status: 201 });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ message: 'Registration failed' }, { status: 500 });
+    }
 }
 
 export async function GET() {
