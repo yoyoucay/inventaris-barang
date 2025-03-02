@@ -39,20 +39,6 @@ export const menuItems: MenuItem[] = [
         label: 'Reports',
         icon: 'bx bx-cog', // Boxicon class for Settings
         href: '/reports',
-        submenu: [
-            {
-                id: 31,
-                label: 'Account',
-                icon: 'bx bx-user-circle', // Boxicon class for User Circle
-                href: '/settings/account',
-            },
-            {
-                id: 32,
-                label: 'Security',
-                icon: 'bx bx-shield', // Boxicon class for Shield
-                href: '/settings/security',
-            },
-        ],
     },
     {
         id: 4,
