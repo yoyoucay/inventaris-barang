@@ -5,9 +5,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserContext } from '../context/UserContext';
 import Loading from '../../components/shared/Loading';
-import Sidebar from '@/components/shared/Sidebar';
-import Navbar from '@/components/shared/Navbar';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import PageLayout from '@/components/shared/PageLayout';
 import Card from '@/components/shared/Card';
 import Chart from '@/components/shared/Chart';
 import DataTable from '@/components/shared/DataTable';
@@ -60,7 +58,7 @@ export default function Dashboard() {
     ];
 
     return pageState > 0 ? (
-        <DashboardLayout>
+        <PageLayout>
             <div className="p-2">
                 <main className="p-4 mt-2">
                     <div className='col-span-12 space-y-4'>
@@ -95,7 +93,7 @@ export default function Dashboard() {
 
                 </main>
             </div>
-        </DashboardLayout>
+        </PageLayout>
     ) : <Loading />;
 }
 
