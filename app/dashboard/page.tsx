@@ -7,20 +7,17 @@ import { UserContext } from '../context/UserContext';
 import Loading from '../components/shared/Loading';
 
 export default function Dashboard() {
-    const { user, logout } = useContext(UserContext);
+    const { user, logout, isAuthenticated } = useContext(UserContext);
     const [pageState, setPageState] = useState<number>(0);
     const router = useRouter();
 
-    console.log('user : ', user);
-
     // Redirect to login if user is not authenticated
     useEffect(() => {
-     if (!localStorage.getItem('token')) {
+        if (!isAuthenticated) {
             router.push('/login');
             return;
         }
-
-        setPageState(1)        
+        setPageState(1)
 
     }, [user]);
 

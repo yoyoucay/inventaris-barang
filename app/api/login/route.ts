@@ -16,7 +16,6 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: 'Invalid credentials'});
         }
 
-
         // Find the hashed password in tumx02
         const [passwords]:any = await pool.query('SELECT * FROM tumx02 WHERE iUserId = ?', [user.iUserID]);
         const hashedPassword = passwords[0]?.sPassword;
