@@ -2,7 +2,7 @@
 "use client";
 import { useContext, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
-import { UserContext } from "../context/UserContext";
+import { UserContext } from "../../context/UserContext";
 
 export default function LogoutPage() {
     const { logout } = useContext(UserContext);

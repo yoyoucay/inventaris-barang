@@ -3,7 +3,7 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserContext } from '../context/UserContext';
+import { UserContext } from '../../context/UserContext';
 import Loading from '../../components/shared/Loading';
 import PageLayout from '@/components/shared/PageLayout';
 import Card from '@/components/shared/Card';

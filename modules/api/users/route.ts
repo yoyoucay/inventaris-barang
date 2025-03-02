@@ -1,5 +1,5 @@
 // app/api/users/route.ts
-import { createUser, getUsers } from '@/app/lib/api/crud/user';
+import { createUser, getUsers } from '@/modules/lib/api/crud/user';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {

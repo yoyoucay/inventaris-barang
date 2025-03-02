@@ -1,15 +1,23 @@
 // components/Sidebar.tsx
 
+import { useState } from "react";
 import { MenuList } from "./Menu";
 
 interface SidebarProps {
     isSidebarOpen: boolean;
-    isHovered?: boolean;
+    setIsSidebarOpen: (value: boolean) => void;
 }
 
-export default function Sidebar({ isSidebarOpen, isHovered }: SidebarProps) {
+export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }: SidebarProps) {
+
+    const handleToogleHover = (state: boolean) => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
+
     return (
         <aside
+            onMouseEnter={() => handleToogleHover(true)}
+            onMouseLeave={() => handleToogleHover(false)}
             className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
           ${isSidebarOpen
                     ? "w-[290px]"
@@ -22,10 +30,8 @@ export default function Sidebar({ isSidebarOpen, isHovered }: SidebarProps) {
                 className={`py-8 flex "justify-start"
                     }`}
             >
-                {isSidebarOpen ? (
+                {(isSidebarOpen) && (
                     <h1 className="text-xl font-bold text-blue-600">Invent</h1>
-                ) : (
-                    <></>
                 )}
             </div>
             <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">

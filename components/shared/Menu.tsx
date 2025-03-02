@@ -1,5 +1,5 @@
 // components/Menu.tsx
-import { menuItems } from '@/app/data/menu';
+import { menuItems } from '@/modules/data/menu';
 import React, { useEffect, useState } from 'react';
 
 interface MenuItemProps {

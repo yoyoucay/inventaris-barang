@@ -1,5 +1,5 @@
 // app/api/test-connection/route.ts
-import { testConnection } from '@/app/lib/db';
+import { testConnection } from '@/modules/lib/db';
 import { NextResponse } from 'next/server';
 
 export async function GET() {

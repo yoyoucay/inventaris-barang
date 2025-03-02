@@ -3,7 +3,7 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import jwt from 'jsonwebtoken';
-import { User } from '../lib/definitions/user';
+import { User } from '../modules/lib/definitions/user';
 
 type UserContextType = {
     user: User | null;

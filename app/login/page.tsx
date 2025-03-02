@@ -3,9 +3,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { User } from '../lib/definitions/user';
-import { useUser } from '../context/UserContext';
-import { httpPost } from '../lib/utils/https';
+import { User } from '../../modules/lib/definitions/user';
+import { useUser } from '../../context/UserContext';
+import { httpPost } from '../../modules/lib/utils/https';
 
 export default function LoginPage() {
     const [modalData, setModalData] = useState<User>({

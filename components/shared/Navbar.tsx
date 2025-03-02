@@ -1,4 +1,4 @@
-import { useUser } from '@/app/context/UserContext';
+import { useUser } from '@/context/UserContext';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
