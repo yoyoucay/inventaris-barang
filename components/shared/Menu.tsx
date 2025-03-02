@@ -32,7 +32,7 @@ const MenuItem = ({ item, isSidebarOpen, isHovered }: MenuItemProps) => {
                 // If the item has a submenu, make it expandable
                 <div
                     onClick={() => (isSidebarOpen || isHovered) && setIsExpanded(!isExpanded)}
-                    className={`flex items-center p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer`}
+                    className={`flex items-center p-1 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer`}
                 >
                     <i className={`${item.icon} text-xl ${isSidebarOpen || isHovered ? 'mr-3' : 'mx-auto'}`}></i>
                     {(isSidebarOpen || isHovered) && <span>{item.label}</span>}
@@ -46,7 +46,7 @@ const MenuItem = ({ item, isSidebarOpen, isHovered }: MenuItemProps) => {
                 // If the item does not have a submenu, make it a link
                 <a
                     href={process.env.NEXT_PUBLIC_BASE_PATH + item.href}
-                    className="flex items-center p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                    className="flex items-center p-1 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                 >
                     <i className={`${item.icon} text-xl ${isSidebarOpen || isHovered ? 'mr-3' : 'mx-auto'}`}></i>
                     {(isSidebarOpen || isHovered) && <span>{item.label}</span>}

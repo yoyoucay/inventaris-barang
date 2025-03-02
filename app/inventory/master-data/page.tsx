@@ -10,7 +10,7 @@ import DataTable from '@/components/shared/DataTable';
 import { UserContext } from '@/context/UserContext';
 import Loading from '@/components/shared/Loading';
 
-export default function DataEntry() {
+export default function MasterData() {
     const { user, logout, isAuthenticated } = useContext(UserContext);
     const [pageState, setPageState] = useState<number>(0);
     const router = useRouter();

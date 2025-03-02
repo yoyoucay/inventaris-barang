@@ -2,34 +2,34 @@
 interface MenuItem {
     id: number;
     label: string;
-    icon: string; // Store the icon as a string (e.g., Boxicons class name)
+    icon: string; 
     href: string;
-    submenu?: MenuItem[]; // Optional submenu
+    submenu?: MenuItem[]; 
 }
 
 export const menuItems: MenuItem[] = [
     {
         id: 1,
         label: 'Dashboard',
-        icon: 'bx bx-pie-chart-alt-2', // Boxicon class for Home
+        icon: 'bx bx-pie-chart-alt-2', 
         href: '/dashboard',
     },
     {
         id: 2,
         label: 'Inventory',
-        icon: 'bx bx-package', // Boxicon class for Warehouse
+        icon: 'bx bx-package', 
         href: '/inventory',
         submenu: [
             {
                 id: 21,
                 label: 'Data Entry',
-                icon: 'bx bx-user-circle', // Boxicon class for User Circle
+                icon: 'bx bx-log-in-circle', 
                 href: '/inventory/data-entry',
             },
             {
                 id: 22,
                 label: 'Master Data',
-                icon: 'bx bx-shield', // Boxicon class for Shield
+                icon: 'bx bx-coin-stack',
                 href: '/inventory/master-data',
             },
         ],
@@ -37,13 +37,13 @@ export const menuItems: MenuItem[] = [
     {
         id: 3,
         label: 'Reports',
-        icon: 'bx bx-cog', // Boxicon class for Settings
+        icon: 'bx bxs-report', 
         href: '/reports',
     },
     {
         id: 4,
         label: 'Logout',
-        icon: 'bx bx-log-out', // Boxicon class for Logout
+        icon: 'bx bx-log-out', 
         href: '/logout',
     },
 ];
