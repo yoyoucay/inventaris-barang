@@ -11,9 +11,10 @@ interface MenuItemProps {
         submenu?: Array<{ id: number; label: string; icon: string; href: string }>;
     };
     isSidebarOpen: boolean; // Add a prop to check if the sidebar is open
+    isHovered?: boolean;
 }
 
-const MenuItem = ({ item, isSidebarOpen }: MenuItemProps) => {
+const MenuItem = ({ item, isSidebarOpen, isHovered }: MenuItemProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
@@ -31,12 +32,12 @@ const MenuItem = ({ item, isSidebarOpen }: MenuItemProps) => {
             {hasSubmenu ? (
                 // If the item has a submenu, make it expandable
                 <div
-                    onClick={() => isSidebarOpen && setIsExpanded(!isExpanded)}
+                    onClick={() => (isSidebarOpen || isHovered) && setIsExpanded(!isExpanded)}
                     className={`flex items-center p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer`}
                 >
-                    <i className={`${item.icon} text-xl ${isSidebarOpen ? 'mr-3' : 'mx-auto'}`}></i>
-                    {isSidebarOpen && <span>{item.label}</span>}
-                    {isSidebarOpen && (
+                    <i className={`${item.icon} text-xl ${isSidebarOpen || isHovered ? 'mr-3' : 'mx-auto'}`}></i>
+                    {(isSidebarOpen || isHovered) && <span>{item.label}</span>}
+                    {(isSidebarOpen || isHovered) && (
                         <i
                             className={`bx ${isExpanded ? 'bx-chevron-down' : 'bx-chevron-right'} ml-auto text-lg`}
                         ></i>
@@ -48,8 +49,8 @@ const MenuItem = ({ item, isSidebarOpen }: MenuItemProps) => {
                     href={process.env.NEXT_PUBLIC_BASE_PATH + item.href}
                     className="flex items-center p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                 >
-                    <i className={`${item.icon} text-xl ${isSidebarOpen ? 'mr-3' : 'mx-auto'}`}></i>
-                    {isSidebarOpen && <span>{item.label}</span>}
+                    <i className={`${item.icon} text-xl ${isSidebarOpen || isHovered ? 'mr-3' : 'mx-auto'}`}></i>
+                    {(isSidebarOpen || isHovered) && <span>{item.label}</span>}
                 </a>
             )}
 
@@ -76,11 +77,11 @@ const MenuItem = ({ item, isSidebarOpen }: MenuItemProps) => {
     );
 };
 
-export const MenuList = ({ isSidebarOpen }: { isSidebarOpen: boolean }) => {
+export const MenuList = ({ isSidebarOpen, isHovered }: { isSidebarOpen: boolean, isHovered?: boolean }) => {
     return (
         <ul className="space-y-2">
             {menuItems.map((item) => (
-                <MenuItem key={item.id} item={item} isSidebarOpen={isSidebarOpen} />
+                <MenuItem key={item.id} item={item} isSidebarOpen={isSidebarOpen} isHovered={isHovered} />
             ))}
         </ul>
     );
