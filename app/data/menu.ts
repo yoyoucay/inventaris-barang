@@ -16,15 +16,29 @@ export const menuItems: MenuItem[] = [
     },
     {
         id: 2,
-        label: 'Profile',
-        icon: 'bx bx-user', // Boxicon class for User
-        href: '/profile',
+        label: 'Inventory',
+        icon: 'bx bx-package', // Boxicon class for Warehouse
+        href: '/inventory',
+        submenu: [
+            {
+                id: 21,
+                label: 'Data Entry',
+                icon: 'bx bx-user-circle', // Boxicon class for User Circle
+                href: '/inventory/data-entry',
+            },
+            {
+                id: 22,
+                label: 'Master Data',
+                icon: 'bx bx-shield', // Boxicon class for Shield
+                href: '/inventory/master-data',
+            },
+        ],
     },
     {
         id: 3,
-        label: 'Settings',
+        label: 'Reports',
         icon: 'bx bx-cog', // Boxicon class for Settings
-        href: '/settings',
+        href: '/reports',
         submenu: [
             {
                 id: 31,
