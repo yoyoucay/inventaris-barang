@@ -16,7 +16,9 @@ export default function Navbar({ toggleSidebar, isSidebarOpen }: NavbarProps) {
 
     // Function to get the current page title based on the route
     const getCurrentPageTitle = () => {
-        let path = pathname.replace("/", "").replace(/^./, match => match.toUpperCase()); // Get the current route (e.g., "/dashboard") and capitalize it
+        let path = pathname.split("/").pop() || "";
+        path = path.replace("-", " ").charAt(0).toUpperCase() + path.slice(1);
+        path = path.replace("-", " ");
         return path;
     };
 
