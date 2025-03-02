@@ -61,7 +61,7 @@ export default function Dashboard() {
 
     return pageState > 0 ? (
         <DashboardLayout>
-            <div className="p-4">
+            <div className="p-2">
                 <main className="p-4 mt-2">
                     <div className='col-span-12 space-y-4'>
                         <div className='grid grid-cols-6 gap-4'>
