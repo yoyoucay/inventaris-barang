@@ -4,7 +4,10 @@
 import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserContext } from '../context/UserContext';
-import Loading from '../components/shared/Loading';
+import Loading from '../../components/shared/Loading';
+import Sidebar from '@/components/shared/Sidebar';
+import Navbar from '@/components/shared/Navbar';
+import DashboardLayout from '@/components/shared/DashboardLayout';
 
 export default function Dashboard() {
     const { user, logout, isAuthenticated } = useContext(UserContext);
@@ -22,9 +25,17 @@ export default function Dashboard() {
     }, [user]);
 
     return pageState > 0 ? (
-        <div>
-            <h1>Welcome, {user?.sEmail}!</h1>
-            <button onClick={logout}>Logout</button>
-        </div>
+        <DashboardLayout>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <main className="p-6 mt-16">
+                    <div>
+                        <h1>Welcome, {user?.sEmail}!</h1>
+                        <button onClick={logout}>Logout</button>
+                    </div>
+                </main>
+            </div>
+        </DashboardLayout>
     ) : <Loading />;
 }
+
+

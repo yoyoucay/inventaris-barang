@@ -5,15 +5,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '../lib/definitions/user';
 import { useUser } from '../context/UserContext';
+import { httpPost } from '../lib/utils/https';
 
 export default function LoginPage() {
-       const [modalData, setModalData] = useState<User>({
+    const [modalData, setModalData] = useState<User>({
         sUserName: null,
-        sFullName: null, 
+        sFullName: null,
         sEmail: null,
         sPassword: null,
         sRole: 'user'
-       });
+    });
     const [error, setError] = useState<string | null>(null);
     const { login } = useUser();
     const router = useRouter();
@@ -30,20 +31,16 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Send login request to the backend
-        const response = await fetch( process.env.NEXT_PUBLIC_BASE_PATH + '/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sEmail: modalData.sEmail, sPassword: modalData.sPassword }),
-        });
-
-        if (response.ok) {
-            const { token } = await response.json();
-            login(token); // Use the login function from context
+        const response: any = await httpPost('/api/login', { sUserName: modalData.sUserName, sPassword: modalData.sPassword });
+        console.log('response:', response);
+        if (response.statusReq && response.statusCode === 200) {
+            const responseData = await response.data;
+            login(responseData.token); // Use the login function from context
             router.push('/dashboard');
         } else {
-            const data = await response.json();
-            setError(data.message || 'Login failed. Please try again.');
+
+            const data = await response;
+            setError(data.sMessage || 'Login failed. Please try again.');
         }
     };
 
@@ -59,13 +56,13 @@ export default function LoginPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                            Email
+                            Username ID
                         </label>
                         <input
-                            type="email"
-                            id="sEmail"
+                            type="text"
+                            id="sUserName"
                             defaultValue={modalData?.sEmail || ''}
-                            onChange={(e) => setData('sEmail', e.target.value)}
+                            onChange={(e) => setData('sUserName', e.target.value)}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             required
                         />

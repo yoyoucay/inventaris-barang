@@ -9,26 +9,25 @@ type UserContextType = {
     user: User | null;
     login: (token: string) => void;
     logout: () => void;
-    isAuthenticated: boolean; 
+    isAuthenticated: boolean;
 };
 
 // Provide a default value
 const defaultContextValue: UserContextType = {
     user: null,
-    login: () => {},
-    logout: () => {},
-    isAuthenticated: false,    
+    login: () => { },
+    logout: () => { },
+    isAuthenticated: false,
 };
 
 export const UserContext = createContext<UserContextType>(defaultContextValue);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null)
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-
         if (token) {
             try {
                 // Decode the token
@@ -45,8 +44,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 console.error('Error decoding token:', error);
                 logout(); // Clear invalid token
             }
+        } else {
+            setIsAuthenticated(false);
         }
-    }, []); // Run only once on mount
+    }, []);
 
     const login = (token: string) => {
         try {
