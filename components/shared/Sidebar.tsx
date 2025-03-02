@@ -1,5 +1,7 @@
 // components/Sidebar.tsx
 
+import { MenuList } from "./Menu";
+
 interface SidebarProps {
     isSidebarOpen: boolean;
     isHovered?: boolean;
@@ -39,13 +41,13 @@ export default function Sidebar({ isSidebarOpen, isHovered }: SidebarProps) {
                                 {isSidebarOpen ? (
                                     "Menu"
                                 ) : (
-                                    // <HorizontaLDots /> ...
-                                    <span>...</span>
+                                    <span className="flex items-center gap-1">
+                                        <i className="bx bx-dots-horizontal-rounded bx-sm" />
+                                    </span>
                                 )}
                             </h2>
                         </div>
-
-
+                        <MenuList isSidebarOpen={isSidebarOpen} />
                     </div>
                 </nav>
             </div>
