@@ -10,6 +10,7 @@ import Navbar from '@/components/shared/Navbar';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import Card from '@/components/shared/Card';
 import Chart from '@/components/shared/Chart';
+import DataTable from '@/components/shared/DataTable';
 
 export default function Dashboard() {
     const { user, logout, isAuthenticated } = useContext(UserContext);
@@ -42,6 +43,22 @@ export default function Dashboard() {
         },
     ];
 
+    // Define column definitions
+    const columnDefs = [
+        { headerName: 'ID', field: 'id', sortable: true, filter: true },
+        { headerName: 'Name', field: 'name', sortable: true, filter: true },
+        { headerName: 'Age', field: 'age', sortable: true, filter: true },
+        { headerName: 'Email', field: 'email', sortable: true, filter: true },
+    ];
+
+    // Define row data
+    const rowData = [
+        { id: 1, name: 'John Doe', age: 28, email: 'john@example.com' },
+        { id: 2, name: 'Jane Smith', age: 34, email: 'jane@example.com' },
+        { id: 3, name: 'Sam Wilson', age: 45, email: 'sam@example.com' },
+        { id: 4, name: 'Emily Davis', age: 23, email: 'emily@example.com' },
+    ];
+
     return pageState > 0 ? (
         <DashboardLayout>
             <div className="p-4">
@@ -53,7 +70,7 @@ export default function Dashboard() {
                             </Card>
                         </div>
 
-                        <div className='grid grid-cols-1 gap-4'>
+                        <div className='grid grid-cols-2 gap-4'>
                             <Card>
                                 <h1 className="text-2xl font-bold mb-4">Sales Chart</h1>
                                 <Chart
@@ -63,8 +80,17 @@ export default function Dashboard() {
                                     height={350}
                                 />
                             </Card>
-                        </div>
+                            <Card>
+                                <h1 className="text-2xl font-bold mb-4">History Data</h1>
+                                <DataTable
+                                    columnDefs={columnDefs}
+                                    rowData={rowData}
+                                    pagination={true}
+                                    paginationPageSize={5}
 
+                                />
+                            </Card>
+                        </div>
                     </div>
 
                 </main>

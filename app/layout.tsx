@@ -4,6 +4,8 @@ import { Providers } from './providers';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import 'boxicons/css/boxicons.min.css';
+import 'ag-grid-community/styles/ag-grid.css'; // Core grid styles
+import 'ag-grid-community/styles/ag-theme-alpine.css'; // Optional theme (you can choose another theme)
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
