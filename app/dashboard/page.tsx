@@ -9,6 +9,7 @@ import Sidebar from '@/components/shared/Sidebar';
 import Navbar from '@/components/shared/Navbar';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import Card from '@/components/shared/Card';
+import Chart from '@/components/shared/Chart';
 
 export default function Dashboard() {
     const { user, logout, isAuthenticated } = useContext(UserContext);
@@ -25,6 +26,22 @@ export default function Dashboard() {
 
     }, [user]);
 
+    const chartOptions = {
+        chart: {
+            id: 'basic-bar',
+        },
+        xaxis: {
+            categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999],
+        },
+    };
+
+    const chartSeries = [
+        {
+            name: 'Sales',
+            data: [30, 40, 45, 50, 49, 60, 70, 91, 125],
+        },
+    ];
+
     return pageState > 0 ? (
         <DashboardLayout>
             <div className="p-4">
@@ -33,13 +50,21 @@ export default function Dashboard() {
                         <div className='grid grid-cols-6 gap-4'>
                             <Card>
                                 <h1>Welcome, {user?.sEmail}!</h1>
-                                <button onClick={logout}>Logout</button>
-                            </Card>
-                            <Card>
-                                <h1>Welcome, {user?.sEmail}!</h1>
-                                <button onClick={logout}>Logout</button>
                             </Card>
                         </div>
+
+                        <div className='grid grid-cols-1 gap-4'>
+                            <Card>
+                                <h1 className="text-2xl font-bold mb-4">Sales Chart</h1>
+                                <Chart
+                                    options={chartOptions}
+                                    series={chartSeries}
+                                    type="line"
+                                    height={350}
+                                />
+                            </Card>
+                        </div>
+
                     </div>
 
                 </main>
