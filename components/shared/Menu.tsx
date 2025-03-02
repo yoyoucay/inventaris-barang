@@ -16,12 +16,11 @@ interface MenuItemProps {
 
 const MenuItem = ({ item, isSidebarOpen, isHovered }: MenuItemProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
-
     useEffect(() => {
-        if (!isSidebarOpen) {
+        if (!isSidebarOpen && !isHovered) {
             setIsExpanded(false);
         }
-    }, [isSidebarOpen]);
+    }, [isSidebarOpen, isHovered]);
 
     // Check if the item has a submenu
     const hasSubmenu = !!item.submenu;
