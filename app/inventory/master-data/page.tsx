@@ -11,7 +11,7 @@ import SelectInput from '@/components/shared/SelectInput';
 import { UserContext } from '@/context/UserContext';
 import { BarangProps } from '@/modules/lib/definitions/barang';
 import { uoms } from '@/modules/lib/definitions/uom';
-import { httpPost } from '@/modules/lib/utils/https';
+import { httpGet, httpPost } from '@/modules/lib/utils/https';
 import { updateState } from '@/modules/lib/utils/updateState';
 import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
@@ -27,7 +27,7 @@ export default function MasterData() {
     });
     const [pageState, setPageState] = useState<number>(0);
     const [error, setError] = useState<string>('');
-    const router = useRouter();
+    const [rowData, setRowData] = useState<any>([]);
 
     const handleChange = (key: keyof typeof formData, value: any) => {
         if (typeof value === 'string') {
@@ -60,6 +60,7 @@ export default function MasterData() {
 
     const handleClose = () => {
         setIsModalOpen(false);
+        setIsEdit(false);
         setFormData({
             sKode: '',
             sName: '',
@@ -67,30 +68,45 @@ export default function MasterData() {
         });
     };
 
-    // Redirect to login if user is not authenticated
-    useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/login');
-            return;
-        }
-        setPageState(1)
+    const handleEdit = (row: any) => {
+        setFormData(row);
+        setIsEdit(true);
+        setIsModalOpen(true);
+    };
 
-    }, [user]);
+    const getData = async () => {
+        const response = httpGet('/api/barang');
+        const data = await response;
+        console.log('data:', data);
+        setRowData(data);
+    };
+
+    useEffect(() => {
+        getData();
+        setPageState(1);
+    }, []);
+
 
     // Define column definitions
     const columnDefs = [
-        { headerName: 'ID', field: 'id', sortable: true, filter: true },
-        { headerName: 'Name', field: 'name', sortable: true, filter: true },
-        { headerName: 'Age', field: 'age', sortable: true, filter: true },
-        { headerName: 'Email', field: 'email', sortable: true, filter: true },
-    ];
-
-    // Define row data
-    const rowData = [
-        { id: 1, name: 'John Doe', age: 28, email: 'john@example.com' },
-        { id: 2, name: 'Jane Smith', age: 34, email: 'jane@example.com' },
-        { id: 3, name: 'Sam Wilson', age: 45, email: 'sam@example.com' },
-        { id: 4, name: 'Emily Davis', age: 23, email: 'emily@example.com' },
+        { headerName: 'ID', field: 'iBarangID', sortable: true, filter: true },
+        { headerName: 'Kode', field: 'sKode', sortable: true, filter: true },
+        { headerName: 'Nama', field: 'sName', sortable: true, filter: true },
+        { headerName: 'Satuan', field: 'sUoM', sortable: true, filter: true },
+        {
+            headerName: 'Action',
+            field: 'iBarangID',
+            cellRenderer: (params: any) => (
+                <div className="flex items-center justify-center">
+                    <button
+                        onClick={() => handleEdit(params.data)}
+                        className="px-4 py-2 bg-green-500 text-white rounded"
+                    >
+                        Edit
+                    </button>
+                </div>
+            ),
+        },
     ];
 
     return pageState > 0 ? (

@@ -1,6 +1,8 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
 
 
 interface DashboardLayoutProps {
@@ -8,10 +10,20 @@ interface DashboardLayoutProps {
 }
 
 export default function PageLayout({ children }: DashboardLayoutProps) {
+    const { isAuthenticated, user } = useUser();
+    const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
+
+    // Redirect to login if user is not authenticated
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.push('/login');
+            return;
+        }
+    }, [user]);
 
     return (
         <div className="flex min-h-screen bg-gray-100">
