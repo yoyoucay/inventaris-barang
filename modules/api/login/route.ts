@@ -1,9 +1,8 @@
 // app/api/login/route.ts
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcrypt';
 import pool from '@/modules/lib/db';
-import jwt from 'jsonwebtoken';
 import { apiResponse } from '@/modules/lib/utils/apiResponse';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 /**
  * Handles the POST request for user login.

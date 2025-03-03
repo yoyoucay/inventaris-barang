@@ -1,20 +1,19 @@
-// app/dashboard/page.tsx
+// app/inventory/master-data/page.tsx
 'use client';
 
-import { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import PageLayout from '@/components/shared/PageLayout';
 import Card from '@/components/shared/Card';
-import Chart from '@/components/shared/Chart';
 import DataTable from '@/components/shared/DataTable';
-import { UserContext } from '@/context/UserContext';
+import InputText from '@/components/shared/InputText';
 import Loading from '@/components/shared/Loading';
 import Modal from '@/components/shared/Modal';
-import InputText from '@/components/shared/InputText';
-import { updateState } from '@/modules/lib/utils/updateState';
-import { BarangProps } from '@/modules/lib/definitions/barang';
+import PageLayout from '@/components/shared/PageLayout';
 import SelectInput from '@/components/shared/SelectInput';
+import { UserContext } from '@/context/UserContext';
+import { BarangProps } from '@/modules/lib/definitions/barang';
 import { uoms } from '@/modules/lib/definitions/uom';
+import { updateState } from '@/modules/lib/utils/updateState';
+import { useRouter } from 'next/navigation';
+import { useContext, useEffect, useState } from 'react';
 
 export default function MasterData() {
     const { user, logout, isAuthenticated } = useContext(UserContext);
@@ -46,22 +45,6 @@ export default function MasterData() {
         setPageState(1)
 
     }, [user]);
-
-    const chartOptions = {
-        chart: {
-            id: 'basic-bar',
-        },
-        xaxis: {
-            categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999],
-        },
-    };
-
-    const chartSeries = [
-        {
-            name: 'Sales',
-            data: [30, 40, 45, 50, 49, 60, 70, 91, 125],
-        },
-    ];
 
     // Define column definitions
     const columnDefs = [
