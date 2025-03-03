@@ -11,19 +11,22 @@ import SelectInput from '@/components/shared/SelectInput';
 import { UserContext } from '@/context/UserContext';
 import { BarangProps } from '@/modules/lib/definitions/barang';
 import { uoms } from '@/modules/lib/definitions/uom';
+import { httpPost } from '@/modules/lib/utils/https';
 import { updateState } from '@/modules/lib/utils/updateState';
 import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 
 export default function MasterData() {
-    const { user, logout, isAuthenticated } = useContext(UserContext);
+    const { user, isAuthenticated } = useContext(UserContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEdit, setIsEdit] = useState<boolean>(false);
     const [formData, setFormData] = useState<BarangProps>({
         sKode: '',
         sName: '',
         sUoM: { value: '', label: '' },
     });
     const [pageState, setPageState] = useState<number>(0);
+    const [error, setError] = useState<string>('');
     const router = useRouter();
 
     const handleChange = (key: keyof typeof formData, value: any) => {
@@ -34,7 +37,35 @@ export default function MasterData() {
         }
     };
 
-    console.log(formData);
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+
+        let payload: BarangProps = {
+            sKode: formData.sKode,
+            sName: formData.sName,
+            sUoM: formData.sUoM
+        }
+
+        console.log('payload :', payload);
+
+        const response: any = await httpPost('/api/barang', { ...payload, isEdit: isEdit });
+        console.log('response:', response);
+        if (response.statusReq && response.statusCode === 200) {
+            handleClose();
+        } else {
+            const data = await response;
+            setError(data.sMessage || 'Login failed. Please try again.');
+        }
+    };
+
+    const handleClose = () => {
+        setIsModalOpen(false);
+        setFormData({
+            sKode: '',
+            sName: '',
+            sUoM: { value: '', label: '' },
+        });
+    };
 
     // Redirect to login if user is not authenticated
     useEffect(() => {
@@ -96,7 +127,8 @@ export default function MasterData() {
                     </div>
 
                 </main>
-                <Modal isOpen={isModalOpen} onConfirm={() => setIsModalOpen(false)} onClose={() => setIsModalOpen(false)} title="Master Data Barang">
+                <Modal isOpen={isModalOpen} onConfirm={(e: any) => handleSubmit(e)} onClose={() => handleClose()} title="Master Data Barang">
+                    {error && <div className="text-red-500">{error}</div>}
                     <InputText
                         id={'sKode'}
                         name={'sKode'}
@@ -125,5 +157,3 @@ export default function MasterData() {
         </PageLayout>
     ) : <Loading />;
 }
-
-

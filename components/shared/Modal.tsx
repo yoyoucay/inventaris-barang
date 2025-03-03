@@ -5,7 +5,7 @@ import { Fragment, ReactNode } from 'react';
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm?: () => void;
+  onConfirm?: (e: React.FormEvent<HTMLFormElement>) => void;
   onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
   children: ReactNode;
   title?: string;
@@ -53,21 +53,22 @@ export default function Modal({ isOpen, onClose, onConfirm, onSubmit, children, 
                   </div>
                   <div className="mt-4 flex justify-end">
                     {onConfirm && (
-                      <button
-                        type="button"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
-                        onClick={onConfirm}
-                      >
-                        Cancel
-                      </button>
-                    )}
-                    {onConfirm && (
-                      <button
-                        type="submit"
-                        className="ml-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-                      >
-                        Submit
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
+                          onClick={onClose}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          className="ml-2 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                          onClick={(e: any) => onConfirm(e)}
+                        >
+                          Submit
+                        </button>
+                      </>
                     )}
                     {!onConfirm && (
                       <button
