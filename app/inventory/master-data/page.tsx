@@ -135,6 +135,7 @@ export default function MasterData() {
                         onChange={(e) => handleChange('sUoM', { value: e?.value, label: e?.label })}
                         defaultValue={formData.sUoM || null}
                         options={uoms}
+                        limitOption={3}
                     />
                 </Modal>
             </div>

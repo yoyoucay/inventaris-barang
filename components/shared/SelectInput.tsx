@@ -14,6 +14,7 @@ interface SelectInputProps {
     isClearable?: boolean;
     placeholder?: string;
     className?: string;
+    limitOption?: number; // New prop to limit the number of options
 }
 
 const customStyles: StylesConfig<OptionProps, false> = {
@@ -33,6 +34,7 @@ const customStyles: StylesConfig<OptionProps, false> = {
             backgroundColor: '#818cf8', // indigo-400 on hover
             color: 'white',
         },
+        zIndex: 9999,
     }),
 };
 
@@ -47,7 +49,11 @@ const SelectInput: React.FC<SelectInputProps> = ({
     isClearable = true,
     placeholder = 'Select...',
     className = '',
+    limitOption, // New prop to limit the number of options
 }) => {
+    // Apply the limitOption filter if provided
+    const filteredOptions = limitOption ? options.slice(0, limitOption) : options;
+
     return (
         <div className={`mb-4 ${className}`}>
             {label && (
@@ -60,11 +66,13 @@ const SelectInput: React.FC<SelectInputProps> = ({
                 name={name}
                 defaultValue={defaultValue}
                 onChange={onChange}
-                options={options}
+                options={filteredOptions} // Use the filtered options
                 styles={customStyles}
                 isClearable={isClearable}
                 placeholder={placeholder}
                 className="mt-1"
+                maxMenuHeight={150}
+                menuShouldScrollIntoView={true}
             />
             {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         </div>

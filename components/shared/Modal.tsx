@@ -48,7 +48,7 @@ export default function Modal({ isOpen, onClose, onConfirm, onSubmit, children, 
                   </DialogTitle>
                 )}
                 <form onSubmit={onSubmit}>
-                  <div className="mt-2">
+                  <div className="mt-2 overflow-y-auto">
                     {children}
                   </div>
                   <div className="mt-4 flex justify-end">
