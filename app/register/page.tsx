@@ -124,7 +124,7 @@ export default function Register() {
                 </form>
                 <p className="mt-4 text-center text-sm text-gray-600">
                     Already have an account?{' '}
-                    <a href="/login" className="text-blue-500 hover:underline">
+                    <a href={process.env.NEXT_PUBLIC_BASE_PATH + `/login`} className="text-blue-500 hover:underline">
                         Login here
                     </a>
                 </p>

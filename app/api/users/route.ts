@@ -1,12 +1,31 @@
+// app/api/users/route.ts
 import bcrypt from "bcrypt";
-import pool from "../../db";
-import { User } from "../../definitions/user";
+import pool from '@/modules/lib/db';
+import { User } from '@/modules/lib/definitions/user';
+import { NextResponse } from 'next/server';
 
-export const createUser = async (user: User) => {
+export async function POST(request: Request) {
+    const user = await request.json();
+    try {
+        const insertedId = await createUser(user);
+        return NextResponse.json({ message: 'User registered successfully', insertedId }, { status: 201 });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ message: 'Registration failed' }, { status: 500 });
+    }
+}
+
+export async function GET() {
+    const users = await getUsers();
+    return NextResponse.json(users);
+}
+
+export async function createUser(user: User) {
     const connection = await pool.getConnection(); // Get a connection from the pool
 
     try {
         await connection.beginTransaction(); // Start a transaction
+
 
         // Step 1: Insert user data into tumx01
         const [result] = await connection.execute(
@@ -16,17 +35,18 @@ export const createUser = async (user: User) => {
         );
 
         // Step 2: Get the inserted ID
-        const [rows]:any = await connection.query('SELECT LAST_INSERT_ID() as insertedId');
+        const [rows]: any = await connection.query('SELECT LAST_INSERT_ID() as insertedId');
         const insertedId = rows[0].insertedId;
-        
+
         // Step 3: Insert user role data into tudt01
         await connection.execute(
             `INSERT INTO tudt01 (iUserID, sRole, iStatus, iCreateBy) 
             VALUES (?, ?, ?, ?)`,
-            [insertedId, 'user',  1, 1]
+            [insertedId, 'user', 1, 1]
         );
 
         await connection.commit(); // Commit the transaction
+
 
         // Step 4: Hash the password
         const saltRounds = 10; // Number of salt rounds for bcrypt
@@ -48,31 +68,10 @@ export const createUser = async (user: User) => {
     } finally {
         connection.release(); // Release the connection back to the pool
     }
-};
+}
 
 // Read all users
-export const getUsers = async () => {
+export async function getUsers() {
     const [rows] = await pool.query('SELECT * FROM tumx01');
     return rows;
-};
-
-// // Read a single user by ID
-// export const getUserById = async (id: number) => {
-//     const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
-//     return rows[0];
-// };
-
-// // Update a user by ID
-// export const updateUser = async (id: number, user: User) => {
-//     const [result] = await pool.execute(
-//         'UPDATE users SET name = ?, email = ?, age = ? WHERE id = ?',
-//         [user.name, user.email, user.age, id]
-//     );
-//     return result;
-// };
-
-// // Delete a user by ID
-// export const deleteUser = async (id: number) => {
-//     const [result] = await pool.execute('DELETE FROM users WHERE id = ?', [id]);
-//     return result;
-// };
+}
