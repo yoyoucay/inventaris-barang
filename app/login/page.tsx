@@ -19,7 +19,6 @@ export default function LoginPage() {
     const { login } = useUser();
     const router = useRouter();
 
-
     const setData = (key: string, value: string) => {
         setModalData((prevState) => ({
             ...prevState,

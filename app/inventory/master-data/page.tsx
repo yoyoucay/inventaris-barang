@@ -9,11 +9,33 @@ import Chart from '@/components/shared/Chart';
 import DataTable from '@/components/shared/DataTable';
 import { UserContext } from '@/context/UserContext';
 import Loading from '@/components/shared/Loading';
+import Modal from '@/components/shared/Modal';
+import InputText from '@/components/shared/InputText';
+import { updateState } from '@/modules/lib/utils/updateState';
+import { BarangProps } from '@/modules/lib/definitions/barang';
+import SelectInput from '@/components/shared/SelectInput';
+import { uoms } from '@/modules/lib/definitions/uom';
 
 export default function MasterData() {
     const { user, logout, isAuthenticated } = useContext(UserContext);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [formData, setFormData] = useState<BarangProps>({
+        sKode: '',
+        sName: '',
+        sUoM: { value: '', label: '' },
+    });
     const [pageState, setPageState] = useState<number>(0);
     const router = useRouter();
+
+    const handleChange = (key: keyof typeof formData, value: any) => {
+        if (typeof value === 'string') {
+            updateState(setFormData, key, value);
+        } else {
+            updateState(setFormData, key, value.value);
+        }
+    };
+
+    console.log(formData);
 
     // Redirect to login if user is not authenticated
     useEffect(() => {
@@ -70,7 +92,15 @@ export default function MasterData() {
 
                         <div className='grid grid-cols-1 gap-4'>
                             <Card>
-                                <h1 className="text-2xl font-bold mb-4">History Data</h1>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h1 className="text-2xl font-bold">History Data</h1>
+                                    <button
+                                        onClick={() => setIsModalOpen(true)}
+                                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                                    >
+                                        + Insert
+                                    </button>
+                                </div>
                                 <DataTable
                                     columnDefs={columnDefs}
                                     rowData={rowData}
@@ -83,6 +113,30 @@ export default function MasterData() {
                     </div>
 
                 </main>
+                <Modal isOpen={isModalOpen} onConfirm={() => setIsModalOpen(false)} onClose={() => setIsModalOpen(false)} title="Master Data Barang">
+                    <InputText
+                        id={'sKode'}
+                        name={'sKode'}
+                        label="Kode Barang"
+                        onChange={(e) => handleChange('sKode', e.target.value)}
+                        defaultValue={formData.sKode || ''}
+                    />
+                    <InputText
+                        id={'sNama'}
+                        name={'sNama'}
+                        label="Nama Barang"
+                        onChange={(e) => handleChange('sName', e.target.value)}
+                        defaultValue={formData.sName || ''}
+                    />
+                    <SelectInput
+                        id={'sUoM'}
+                        name={'sUoM'}
+                        label="Satuan Barang"
+                        onChange={(e) => handleChange('sUoM', { value: e?.value, label: e?.label })}
+                        defaultValue={formData.sUoM || null}
+                        options={uoms}
+                    />
+                </Modal>
             </div>
         </PageLayout>
     ) : <Loading />;
