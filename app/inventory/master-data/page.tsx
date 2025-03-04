@@ -32,12 +32,13 @@ export default function MasterData() {
     const [rowData, setRowData] = useState<any>([]);
 
     const handleChange = (key: keyof typeof formData, value: any) => {
+        console.log('value :', value)
         if (typeof value === 'string') {
             updateState(setFormData, key, value);
         } else if (value instanceof File) {
             updateState(setFormData, key, value);
         } else {
-            updateState(setFormData, key, value.value);
+            updateState(setFormData, key, value?.value ?? value);
         }
     };
 
@@ -178,10 +179,13 @@ export default function MasterData() {
 
                     <Divider margin="my-8" />
 
-                    <FileUpload
-                        accept=".xlsx,.xls" // Customize accepted file types
-                        onFileChange={(file) => handleChange('file', file)}
-                    />
+                    {!isEdit && (
+                        <FileUpload
+                            accept=".xlsx,.xls" // Customize accepted file types
+                            onFileChange={(file) => handleChange('file', file)}
+                            onFileRead={(data) => handleChange('data', data)}
+                        />
+                    )}
                 </Modal>
             </div>
         </PageLayout>
