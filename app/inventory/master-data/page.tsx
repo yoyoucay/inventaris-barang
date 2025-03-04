@@ -3,6 +3,8 @@
 
 import Card from '@/components/shared/Card';
 import DataTable from '@/components/shared/DataTable';
+import Divider from '@/components/shared/Divider';
+import FileUpload from '@/components/shared/FileUpload';
 import InputText from '@/components/shared/InputText';
 import Loading from '@/components/shared/Loading';
 import Modal from '@/components/shared/Modal';
@@ -20,7 +22,7 @@ export default function MasterData() {
     const { user, isAuthenticated } = useContext(UserContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEdit, setIsEdit] = useState<boolean>(false);
-    const [formData, setFormData] = useState<BarangProps>({
+    const [formData, setFormData] = useState<BarangProps | any>({
         sKode: '',
         sName: '',
         sUoM: { value: '', label: '' },
@@ -32,10 +34,14 @@ export default function MasterData() {
     const handleChange = (key: keyof typeof formData, value: any) => {
         if (typeof value === 'string') {
             updateState(setFormData, key, value);
+        } else if (value instanceof File) {
+            updateState(setFormData, key, value);
         } else {
             updateState(setFormData, key, value.value);
         }
     };
+
+    console.log('formData :', formData)
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -45,9 +51,6 @@ export default function MasterData() {
             sName: formData.sName,
             sUoM: formData.sUoM
         }
-
-        console.log('payload :', payload);
-
         const response: any = await httpPost('/api/barang', { ...payload, isEdit: isEdit });
         console.log('response:', response);
         if (response.statusReq && response.statusCode === 200) {
@@ -69,7 +72,12 @@ export default function MasterData() {
     };
 
     const handleEdit = (row: any) => {
-        setFormData(row);
+        const sUoM = uoms.find((uom) => uom.value === row.sUoM);
+        setFormData({
+            sKode: row.sKode,
+            sName: row.sName,
+            sUoM: { value: sUoM?.value || '', label: sUoM?.label || '' },
+        });
         setIsEdit(true);
         setIsModalOpen(true);
     };
@@ -100,7 +108,7 @@ export default function MasterData() {
                 <div className="flex items-center justify-center">
                     <button
                         onClick={() => handleEdit(params.data)}
-                        className="px-4 py-2 bg-green-500 text-white rounded"
+                        className="px-4 gap-2 items-center text-center bg-green-500 text-white rounded block mx-auto"
                     >
                         Edit
                     </button>
@@ -123,7 +131,7 @@ export default function MasterData() {
                         <div className='grid grid-cols-1 gap-4'>
                             <Card>
                                 <div className="flex justify-between items-center mb-4">
-                                    <h1 className="text-2xl font-bold">History Data</h1>
+                                    <h1 className="text-2xl font-bold">Master Data Barang</h1>
                                     <button
                                         onClick={() => setIsModalOpen(true)}
                                         className="px-4 py-2 bg-blue-500 text-white rounded"
@@ -136,7 +144,6 @@ export default function MasterData() {
                                     rowData={rowData}
                                     pagination={true}
                                     paginationPageSize={5}
-
                                 />
                             </Card>
                         </div>
@@ -167,6 +174,13 @@ export default function MasterData() {
                         defaultValue={formData.sUoM || null}
                         options={uoms}
                         limitOption={3}
+                    />
+
+                    <Divider margin="my-8" />
+
+                    <FileUpload
+                        accept=".xlsx,.xls" // Customize accepted file types
+                        onFileChange={(file) => handleChange('file', file)}
                     />
                 </Modal>
             </div>

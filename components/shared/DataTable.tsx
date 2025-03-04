@@ -5,7 +5,6 @@ import React from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { AllCommunityModule, ModuleRegistry, provideGlobalGridOptions, themeQuartz } from 'ag-grid-community';
 
-
 // Mark all grids as using legacy themes
 provideGlobalGridOptions({
     theme: "legacy",
@@ -32,10 +31,9 @@ const DataTable: React.FC<DataTableProps> = ({
     const myTheme = themeQuartz.withParams({ accentColor: 'red' });
 
     return (
-        <div className="ag-theme-alpine" style={{ height: '400px', width: '100%' }}>
+        <div className="ag-theme-alpine w-full h-fit">
             <AgGridReact
-                // theme={myTheme}
-                columnDefs={columnDefs} // Column configuration
+                columnDefs={columnDefs.map(col => ({ ...col, flex: 1 }))} // Column configuration
                 rowData={rowData} // Data rows
                 pagination={pagination} // Enable/disable pagination
                 paginationPageSize={paginationPageSize} // Rows per page
