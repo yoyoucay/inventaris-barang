@@ -6,11 +6,13 @@ interface InputTextProps {
     name: string;
     type?: string;
     defaultValue?: string;
+    required: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     placeholder?: string;
     label?: string;
     error?: string;
     className?: string;
+    disabled?: boolean;
 }
 
 const InputText: React.FC<InputTextProps> = ({
@@ -19,10 +21,12 @@ const InputText: React.FC<InputTextProps> = ({
     type = 'text',
     defaultValue,
     onChange,
+    required = false,
     placeholder,
     label,
     error,
     className = '',
+    disabled = false,
 }) => {
     return (
         <div className={`mb-4 ${className}`}>
@@ -37,9 +41,11 @@ const InputText: React.FC<InputTextProps> = ({
                 type={type}
                 defaultValue={defaultValue}
                 onChange={onChange}
+                required={required}
                 placeholder={placeholder}
+                disabled={disabled}
                 className={`mt-1 block w-full px-3 py-2 border ${error ? 'border-red-500' : 'border-gray-300'
-                    } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                    } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${disabled ? 'bg-gray-100' : ''}`}
             />
             {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         </div>

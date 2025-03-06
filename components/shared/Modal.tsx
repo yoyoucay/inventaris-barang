@@ -38,7 +38,7 @@ export default function Modal({ isOpen, onClose, onConfirm, onSubmit, children, 
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <DialogPanel className="h-[calc(100vh-20%)] w-full max-w-md  transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 {title && (
                   <DialogTitle
                     as="h3"
@@ -51,7 +51,7 @@ export default function Modal({ isOpen, onClose, onConfirm, onSubmit, children, 
                   <div className="mt-2 overflow-y-auto">
                     {children}
                   </div>
-                  <div className="mt-4 flex justify-end">
+                  <div className="mt-6 flex justify-end">
                     {onConfirm && (
                       <>
                         <button

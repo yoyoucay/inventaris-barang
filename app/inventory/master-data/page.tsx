@@ -15,7 +15,6 @@ import { BarangProps } from '@/modules/lib/definitions/barang';
 import { uoms } from '@/modules/lib/definitions/uom';
 import { httpGet, httpPost } from '@/modules/lib/utils/https';
 import { updateState } from '@/modules/lib/utils/updateState';
-import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 
 export default function MasterData() {
@@ -30,6 +29,7 @@ export default function MasterData() {
     const [pageState, setPageState] = useState<number>(0);
     const [error, setError] = useState<string>('');
     const [rowData, setRowData] = useState<any>([]);
+    const [localLoading, setLocalLoading] = useState<boolean>(false);
 
     const handleChange = (key: keyof typeof formData, value: any) => {
         console.log('value :', value)
@@ -42,29 +42,61 @@ export default function MasterData() {
         }
     };
 
-    console.log('formData :', formData)
-
     const handleSubmit = async (e: any) => {
+        setLocalLoading(true);
         e.preventDefault();
-
-        let payload: BarangProps = {
-            sKode: formData.sKode,
-            sName: formData.sName,
-            sUoM: formData.sUoM
+        let requiredFields = [
+            { name: 'sKode', alias: 'Kode Barang' },
+            { name: 'sName', alias: 'Nama Barang' },
+            { name: 'sUoM', alias: 'Satuan Barang' },
+        ];
+        if (!formData.data) {
+            for (const field of requiredFields) {
+                if (!formData[field.name]) {
+                    setError(`${field.alias} wajib diisi`);
+                    return;
+                }
+            }
         }
+        let payload: any;
+        console.log('formData.data : ', formData.data)
+        if (formData.data && formData.data.length > 0) {
+            payload = {
+                totalItems: formData.data.length,
+                items: formData.data.map((item: any) => ({
+                    sKode: item.Kode,
+                    sName: item.Nama,
+                    sUoM: item.UoM,
+                    iModifyBy: user?.iUserID
+                })),
+            };
+        } else {
+            payload = {
+                totalItems: 1,
+                items: [{
+                    sKode: formData.sKode,
+                    sName: formData.sName,
+                    sUoM: typeof formData.sUoM === 'object' ? formData.sUoM.value : formData.sUoM || '',
+                    iModifyBy: user?.iUserID
+                }],
+            };
+        }
+        console.log('payload before send : ', payload)
         const response: any = await httpPost('/api/barang', { ...payload, isEdit: isEdit });
+        setLocalLoading(false);
         console.log('response:', response);
         if (response.statusReq && response.statusCode === 200) {
             handleClose();
         } else {
             const data = await response;
-            setError(data.sMessage || 'Login failed. Please try again.');
+            setError(data.sMessage || 'Registrasi Barang gagal. Silahkan coba lagi.');
         }
     };
 
     const handleClose = () => {
         setIsModalOpen(false);
         setIsEdit(false);
+        setError('');
         setFormData({
             sKode: '',
             sName: '',
@@ -83,17 +115,18 @@ export default function MasterData() {
         setIsModalOpen(true);
     };
 
+
+
     const getData = async () => {
         const response = httpGet('/api/barang');
         const data = await response;
-        console.log('data:', data);
         setRowData(data);
+        setPageState(1)
     };
 
     useEffect(() => {
         getData();
-        setPageState(1);
-    }, []);
+    }, [localLoading]);
 
 
     // Define column definitions
@@ -103,20 +136,60 @@ export default function MasterData() {
         { headerName: 'Nama', field: 'sName', sortable: true, filter: true },
         { headerName: 'Satuan', field: 'sUoM', sortable: true, filter: true },
         {
+            headerName: 'Status',
+            field: 'iStatus',
+            cellRenderer: (params: any) => (
+                <div className='flex items-center justify-center'>
+                    <span className={`px-2 rounded ${params.value === 1 ? 'bg-green-100' : 'bg-red-100'}`}>
+                        {params.value === 1 ? 'Active' : 'Non-Active'}
+                    </span>
+                </div>
+            ),
+        },
+        {
             headerName: 'Action',
             field: 'iBarangID',
             cellRenderer: (params: any) => (
-                <div className="flex items-center justify-center">
+                <div className="flex items-center gap-2 justify-center">
                     <button
                         onClick={() => handleEdit(params.data)}
-                        className="px-4 gap-2 items-center text-center bg-green-500 text-white rounded block mx-auto"
+                        className="px-4 items-center text-center bg-green-500 text-white rounded block mx-auto"
                     >
                         Edit
+                    </button>
+                    <button
+                        onClick={() => handleChangeStatus(params.data)}
+                        className="px-4 items-center text-center bg-blue-500 text-white rounded block mx-auto"
+                    >
+                        {params.data.iStatus === 1 ? 'Deactive' : 'Active'}
                     </button>
                 </div>
             ),
         },
     ];
+
+    const handleChangeStatus = async (row: any) => {
+        const iStatus = row.iStatus === 1 ? 0 : 1;
+        const payload = {
+            totalItems: 1,
+            items: [{
+                iBarangID: row.iBarangID,
+                iStatus,
+                iModifyBy: user?.iUserID,
+            }],
+            isUpdateStatus: true,
+        };
+        setLocalLoading(true)
+        const response: any = await httpPost('/api/barang', payload);
+        if (response.statusReq && response.statusCode === 200) {
+            setLocalLoading(false)
+        } else {
+            const data = await response;
+            setError(data.sMessage || 'Registrasi Barang gagal. Silahkan coba lagi.');
+        }
+    };
+
+
 
     return pageState > 0 ? (
         <PageLayout>
@@ -133,12 +206,19 @@ export default function MasterData() {
                             <Card>
                                 <div className="flex justify-between items-center mb-4">
                                     <h1 className="text-2xl font-bold">Master Data Barang</h1>
-                                    <button
-                                        onClick={() => setIsModalOpen(true)}
-                                        className="px-4 py-2 bg-blue-500 text-white rounded"
-                                    >
-                                        + Insert
-                                    </button>
+                                    <div className="flex justify-end">
+                                        <a href={`${process.env.NEXT_PUBLIC_BASE_PATH}/template/FormatBarang.xlsx`} download>
+                                            <button className="px-4 py-2 bg-green-500 text-white rounded">
+                                                Download Template
+                                            </button>
+                                        </a>
+                                        <button
+                                            onClick={() => setIsModalOpen(true)}
+                                            className="px-4 py-2 bg-blue-500 text-white rounded ml-2"
+                                        >
+                                            + Insert
+                                        </button>
+                                    </div>
                                 </div>
                                 <DataTable
                                     columnDefs={columnDefs}
@@ -152,32 +232,38 @@ export default function MasterData() {
 
                 </main>
                 <Modal isOpen={isModalOpen} onConfirm={(e: any) => handleSubmit(e)} onClose={() => handleClose()} title="Master Data Barang">
-                    {error && <div className="text-red-500">{error}</div>}
-                    <InputText
-                        id={'sKode'}
-                        name={'sKode'}
-                        label="Kode Barang"
-                        onChange={(e) => handleChange('sKode', e.target.value)}
-                        defaultValue={formData.sKode || ''}
-                    />
-                    <InputText
-                        id={'sNama'}
-                        name={'sNama'}
-                        label="Nama Barang"
-                        onChange={(e) => handleChange('sName', e.target.value)}
-                        defaultValue={formData.sName || ''}
-                    />
-                    <SelectInput
-                        id={'sUoM'}
-                        name={'sUoM'}
-                        label="Satuan Barang"
-                        onChange={(e) => handleChange('sUoM', { value: e?.value, label: e?.label })}
-                        defaultValue={formData.sUoM || null}
-                        options={uoms}
-                        limitOption={3}
-                    />
 
-                    <Divider margin="my-8" />
+                    <div className='mb-30'>
+                        <InputText
+                            id={'sKode'}
+                            name={'sKode'}
+                            disabled={isEdit}
+                            required={true}
+                            label="Kode Barang"
+                            onChange={(e) => handleChange('sKode', e.target.value)}
+                            defaultValue={formData.sKode || ''}
+                        />
+                        <InputText
+                            id={'sNama'}
+                            name={'sNama'}
+                            required={true}
+                            label="Nama Barang"
+                            onChange={(e) => handleChange('sName', e.target.value)}
+                            defaultValue={formData.sName || ''}
+                        />
+                        <SelectInput
+                            id={'sUoM'}
+                            name={'sUoM'}
+                            label="Satuan Barang"
+                            onChange={(e) => handleChange('sUoM', { value: e?.value, label: e?.label })}
+                            defaultValue={formData.sUoM || null}
+                            options={uoms}
+                            limitOption={3}
+                        />
+                    </div>
+                    {error && <div className="text-center text-red-500 ">{error}</div>}
+
+                    <Divider margin="my-6" />
 
                     {!isEdit && (
                         <FileUpload
