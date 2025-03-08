@@ -215,8 +215,6 @@ export default function MasterData() {
         },
     ];
 
-
-
     const handleChangeStatus = async (row: any) => {
         const iStatus = row.iStatus === 1 ? 0 : 1;
         const payload = {
@@ -237,8 +235,6 @@ export default function MasterData() {
             setError(data.sMessage || 'Registrasi Barang gagal. Silahkan coba lagi.');
         }
     };
-
-
 
     return pageState > 0 ? (
         <PageLayout>
