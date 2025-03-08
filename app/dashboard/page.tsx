@@ -65,7 +65,14 @@ export default function Dashboard() {
         let response: any;
         response = await httpGet('/api/barang');
         const hasil = await response;
-        // setData({ ...data, barang: hasil.length });
+
+        console.log('hasil : ', hasil)
+        setData({
+            ...data, barang: {
+                sarana: hasil.filter((item: any) => item.iType === 0).length,
+                prasarana: hasil.filter((item: any) => item.iType === 1).length
+            }
+        });
     }
 
     useEffect(() => {
@@ -87,7 +94,8 @@ export default function Dashboard() {
                             </Card>
                             <Card>
                                 <h1 className="text-1xl font-bold mb-4">Jumlah Barang terdaftar</h1>
-                                <p className="text-4xl font-bold">{data?.barang?.sarana ?? 0}</p>
+                                <p className="text-2xl font-bold">Sarana : {data?.barang?.sarana ?? 0} </p>
+                                <p className="text-2xl font-bold">Prasarana : {data?.barang?.prasarana ?? 0} </p>
                             </Card>
                         </div>
 
