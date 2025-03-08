@@ -27,19 +27,21 @@ export async function crudBarang(payload: any) {
             if (payload.isUpdateStatus) {
                 return `UPDATE tumx03 SET iStatus = ?, iModifyBy = ? WHERE iBarangID = ?`;
             } else if (payload.isEdit) {
-                return `UPDATE tumx03 SET sName = ?, sUoM = ?, iStatus = ?, iModifyBy = ? WHERE sKode = ?`;
+                return `UPDATE tumx03 SET sName = ?, iType= ?,  sUoM = ?, iStatus = ?, iModifyBy = ? WHERE sKode = ?`;
             } else {
-                return `INSERT INTO tumx03 (sKode, sName, sUoM, iStatus, iCreateBy) VALUES (?, ?, ?, ?, ?)`;
+                return `INSERT INTO tumx03 (sKode, sName, iType, sUoM, iStatus, iCreateBy) VALUES (?, ?, ?, ?, ?, ?)`;
             }
         });
+
+        
 
         const params = payload.items.map((item:any) => {
             if (payload.isUpdateStatus) {
                 return [item.iStatus, item.iModifyBy, item.iBarangID];
             } else if (payload.isEdit) {
-                return [item.sName, item.sUoM, 1, item.iModifyBy, item.sKode];
+                return [item.sName, item.iType, item.sUoM, 1, item.iModifyBy, item.sKode];
             } else {
-                return [item.sKode, item.sName, item.sUoM, 1, item.iModifyBy];
+                return [item.sKode, item.sName, item.iType, item.sUoM, 1, item.iModifyBy];
             }
         });
 

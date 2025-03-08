@@ -24,5 +24,17 @@ export const uoms: {value: string, label: string}[] = [
     {value: 'KG/P', label: 'Kilogram per Pack (KG/P)'},
     {value: 'L/B', label: 'Liter per Box (L/B)'},
     {value: 'L/P', label: 'Liter per Pack (L/P)'},
+    {value: 'M', label: 'Meter (M)'},
+    {value: 'CM', label: 'Centimeter (CM)'},
+    {value: 'M2', label: 'Meter persegi (M2)'},
+    {value: 'M3', label: 'Meter kubik (M3)'},
+    {value: 'KG/M2', label: 'Kilogram per Meter persegi (KG/M2)'},
+    {value: 'KG/M3', label: 'Kilogram per Meter kubik (KG/M3)'},
+];
+
+
+export const types: {value: string, label: string}[] = [
+    {value: "0", label: 'Sarana'},
+    {value: "1", label: 'Prasarana'},
 ];
 

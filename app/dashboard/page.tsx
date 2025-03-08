@@ -9,9 +9,13 @@ import PageLayout from '@/components/shared/PageLayout';
 import Card from '@/components/shared/Card';
 import Chart from '@/components/shared/Chart';
 import DataTable from '@/components/shared/DataTable';
+import { httpGet } from '@/modules/lib/utils/https';
 
 export default function Dashboard() {
     const { user, logout, isAuthenticated } = useContext(UserContext);
+    const [data, setData] = useState<any>({
+        barang: undefined
+    });
     const [pageState, setPageState] = useState<number>(0);
     const router = useRouter();
 
@@ -57,6 +61,18 @@ export default function Dashboard() {
         { id: 4, name: 'Emily Davis', age: 23, email: 'emily@example.com' },
     ];
 
+    const getData = async () => {
+        let response: any;
+        response = await httpGet('/api/barang');
+        const hasil = await response;
+        // setData({ ...data, barang: hasil.length });
+    }
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+
     return pageState > 0 ? (
         <PageLayout>
             <div className="p-2">
@@ -64,7 +80,14 @@ export default function Dashboard() {
                     <div className='col-span-12 space-y-4'>
                         <div className='grid grid-cols-6 gap-4'>
                             <Card>
-                                <h1>Welcome, {user?.sEmail}!</h1>
+                                <div className="flex items-center gap-2">
+                                    <i className="bx bx-user text-2xl p-2"></i>
+                                    <h1>Welcome, {user?.sEmail}!</h1>
+                                </div>
+                            </Card>
+                            <Card>
+                                <h1 className="text-1xl font-bold mb-4">Jumlah Barang terdaftar</h1>
+                                <p className="text-4xl font-bold">{data?.barang?.sarana ?? 0}</p>
                             </Card>
                         </div>
 

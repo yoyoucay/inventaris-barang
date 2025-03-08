@@ -13,7 +13,7 @@ import BarcodeComponent, { BarcodeRef } from '@/components/shared/PdfBarcode';
 import SelectInput from '@/components/shared/SelectInput';
 import { UserContext } from '@/context/UserContext';
 import { BarangProps } from '@/modules/lib/definitions/barang';
-import { uoms } from '@/modules/lib/definitions/uom';
+import { types, uoms } from '@/modules/lib/definitions/uom';
 import { httpGet, httpPost } from '@/modules/lib/utils/https';
 import { updateState } from '@/modules/lib/utils/updateState';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -26,6 +26,7 @@ export default function MasterData() {
     const [formData, setFormData] = useState<BarangProps | any>({
         sKode: '',
         sName: '',
+        iType: { value: '', label: '' },
         sUoM: { value: '', label: '' },
     });
     const [pageState, setPageState] = useState<number>(0);
@@ -35,7 +36,6 @@ export default function MasterData() {
     const barcodeRef = useRef<BarcodeRef>(null);
 
     const handleChange = (key: keyof typeof formData, value: any) => {
-        console.log('value :', value)
         if (typeof value === 'string') {
             updateState(setFormData, key, value);
         } else if (value instanceof File) {
@@ -44,6 +44,8 @@ export default function MasterData() {
             updateState(setFormData, key, value?.value ?? value);
         }
     };
+
+    console.log('formData :', formData)
 
     const handleSubmit = async (e: any) => {
         setLocalLoading(true);
@@ -69,6 +71,7 @@ export default function MasterData() {
                 items: formData.data.map((item: any) => ({
                     sKode: item.Kode,
                     sName: item.Nama,
+                    iType: types.find((types) => types.label === item.Tipe)?.value || '',
                     sUoM: item.UoM,
                     iModifyBy: user?.iUserID
                 })),
@@ -79,6 +82,7 @@ export default function MasterData() {
                 items: [{
                     sKode: formData.sKode,
                     sName: formData.sName,
+                    iType: typeof formData.iType === 'object' ? formData.iType.value : formData.iType || '',
                     sUoM: typeof formData.sUoM === 'object' ? formData.sUoM.value : formData.sUoM || '',
                     iModifyBy: user?.iUserID
                 }],
@@ -103,14 +107,17 @@ export default function MasterData() {
         setFormData({
             sKode: '',
             sName: '',
+            iType: { value: '', label: '' },
             sUoM: { value: '', label: '' },
         });
     };
     const handleEdit = (row: any) => {
         const sUoM = uoms.find((uom) => uom.value === row.sUoM);
+        const iType = types.find((type) => type.value.toString() === row.iType.toString());
         setFormData({
             sKode: row.sKode,
             sName: row.sName,
+            iType: { value: iType?.value || '', label: iType?.label || '' },
             sUoM: { value: sUoM?.value || '', label: sUoM?.label || '' },
         });
         setIsEdit(true);
@@ -144,6 +151,21 @@ export default function MasterData() {
         { headerName: 'ID', field: 'iBarangID', sortable: true, filter: true },
         { headerName: 'Kode', field: 'sKode', sortable: true, filter: true },
         { headerName: 'Nama', field: 'sName', sortable: true, filter: true },
+        {
+            headerName: 'Jenis',
+            field: 'iType',
+            cellRenderer: (params: any) => {
+                const val = params.value.toString();
+                return (
+                    <div className='flex items-center justify-center'>
+                        <span className={`px-2 rounded ${params.value === "1" ? 'bg-green-100' : 'bg-red-100'}`}>
+                            {params.value === "1" ? 'Prasarana' : 'Sarana'}
+                        </span>
+                    </div>
+                )
+
+            },
+        },
         { headerName: 'Satuan', field: 'sUoM', sortable: true, filter: true },
         {
             headerName: 'Status',
@@ -277,6 +299,15 @@ export default function MasterData() {
                             label="Nama Barang"
                             onChange={(e) => handleChange('sName', e.target.value)}
                             defaultValue={formData.sName || ''}
+                        />
+                        <SelectInput
+                            id={'iType'}
+                            name={'iType'}
+                            label="Jenis Barang"
+                            onChange={(e) => handleChange('iType', { value: e?.value, label: e?.label })}
+                            defaultValue={formData.iType || null}
+                            options={types}
+                            limitOption={3}
                         />
                         <SelectInput
                             id={'sUoM'}
