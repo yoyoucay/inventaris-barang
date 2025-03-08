@@ -52,6 +52,6 @@ export async function GET() {
 
 // Read all users
 export async function getEntry() {
-    const [rows] = await pool.query('SELECT * FROM v_entry_trans');
+    const [rows] = await pool.query('SELECT * FROM v_entry_rpt');
     return rows;
 }
