@@ -1,4 +1,4 @@
-// app/api/users/route.ts
+// app/api/barang/route.ts
 import bcrypt from "bcrypt";
 import pool from '@/modules/lib/db';
 import { BarangProps as Barang } from '@/modules/lib/definitions/barang';
