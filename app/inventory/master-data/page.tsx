@@ -9,15 +9,17 @@ import InputText from '@/components/shared/InputText';
 import Loading from '@/components/shared/Loading';
 import Modal from '@/components/shared/Modal';
 import PageLayout from '@/components/shared/PageLayout';
+import BarcodeComponent, { BarcodeRef } from '@/components/shared/PdfBarcode';
 import SelectInput from '@/components/shared/SelectInput';
 import { UserContext } from '@/context/UserContext';
 import { BarangProps } from '@/modules/lib/definitions/barang';
 import { uoms } from '@/modules/lib/definitions/uom';
 import { httpGet, httpPost } from '@/modules/lib/utils/https';
 import { updateState } from '@/modules/lib/utils/updateState';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 export default function MasterData() {
+
     const { user, isAuthenticated } = useContext(UserContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -30,6 +32,7 @@ export default function MasterData() {
     const [error, setError] = useState<string>('');
     const [rowData, setRowData] = useState<any>([]);
     const [localLoading, setLocalLoading] = useState<boolean>(false);
+    const barcodeRef = useRef<BarcodeRef>(null);
 
     const handleChange = (key: keyof typeof formData, value: any) => {
         console.log('value :', value)
@@ -103,7 +106,6 @@ export default function MasterData() {
             sUoM: { value: '', label: '' },
         });
     };
-
     const handleEdit = (row: any) => {
         const sUoM = uoms.find((uom) => uom.value === row.sUoM);
         setFormData({
@@ -114,9 +116,6 @@ export default function MasterData() {
         setIsEdit(true);
         setIsModalOpen(true);
     };
-
-
-
     const getData = async () => {
         const response = httpGet('/api/barang');
         const data = await response;
@@ -124,10 +123,21 @@ export default function MasterData() {
         setPageState(1)
     };
 
+    const handlePreviewPDF = async () => {
+        if (barcodeRef.current) {
+            try {
+                const pdfUrl = await barcodeRef.current.generatePdfUrl();
+                window.open(pdfUrl, "_blank");
+            } catch (error) {
+                console.error("Failed to generate PDF:", error);
+            }
+        }
+    };
+
+
     useEffect(() => {
         getData();
     }, [localLoading]);
-
 
     // Define column definitions
     const columnDefs = [
@@ -143,6 +153,21 @@ export default function MasterData() {
                     <span className={`px-2 rounded ${params.value === 1 ? 'bg-green-100' : 'bg-red-100'}`}>
                         {params.value === 1 ? 'Active' : 'Non-Active'}
                     </span>
+                </div>
+            ),
+        },
+        {
+            headerName: 'Barcode',
+            field: 'sKode',
+            cellRenderer: (params: any) => (
+                <div className="items-center gap-2 justify-center">
+                    <button
+                        onClick={handlePreviewPDF}
+                        className="px-4 items-center text-center bg-blue-500 text-white rounded block mx-auto"
+                    >
+                        Print
+                    </button>
+                    <BarcodeComponent value={params.data.sKode} name={params.data.sName} ref={barcodeRef} />
                 </div>
             ),
         },
@@ -167,6 +192,8 @@ export default function MasterData() {
             ),
         },
     ];
+
+
 
     const handleChangeStatus = async (row: any) => {
         const iStatus = row.iStatus === 1 ? 0 : 1;
