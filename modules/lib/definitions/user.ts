@@ -5,4 +5,5 @@ export interface User {
     sEmail: string | null;
     sPassword?: string | null;
     sRole?: string | null;
+    iModifyBy?: number | null;
   }

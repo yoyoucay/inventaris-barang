@@ -42,6 +42,12 @@ export const menuItems: MenuItem[] = [
     },
     {
         id: 4,
+        label: 'Account User',
+        icon: 'bx bxs-user-account', 
+        href: '/account-user',
+    },
+    {
+        id: 5,
         label: 'Logout',
         icon: 'bx bx-log-out', 
         href: '/logout',

@@ -3,67 +3,140 @@ import bcrypt from "bcrypt";
 import pool from '@/modules/lib/db';
 import { User } from '@/modules/lib/definitions/user';
 import { NextResponse } from 'next/server';
+import { apiResponse } from "@/modules/lib/utils/apiResponse";
 
 export async function POST(request: Request) {
     const user = await request.json();
     try {
-        const insertedId = await createUser(user);
-        return NextResponse.json({ message: 'User registered successfully', insertedId }, { status: 201 });
+        const result = await crudUser(user);
+        return apiResponse({ sMessage: result.sMessage, statusReq: result.statusReq, statusCode: result.statusCode });
     } catch (error) {
-        console.error(error);
-        return NextResponse.json({ message: 'Registration failed' }, { status: 500 });
+        console.error('Registration failed: ', error);
+        return apiResponse({ sMessage: 'Registrasi User Gagal!', statusReq: false, statusCode: 500 });
     }
 }
 
 export async function GET() {
     const users = await getUsers();
-    return NextResponse.json(users);
+    return apiResponse({ sMessage: 'Data User Ditemukan!', statusReq: true, statusCode: 200, data: users });
 }
 
-export async function createUser(user: User) {
-    const connection = await pool.getConnection(); // Get a connection from the pool
+export async function crudUser(payload: any) {
 
+    console.log('payload :', payload);
+
+    if (payload && payload.isUpdateStatus) {
+        const connection = await pool.getConnection(); // Get a connection from the pool
+        try {
+            await connection.beginTransaction(); // Start a transaction
+            payload.items.map(async (item: any) => {
+                const [result] = await connection.execute(
+                    `UPDATE tudt01 SET iStatus = ?, iModifyBy = ? WHERE iUserID = ?`,
+                    [item.iStatus, item.iModifyBy, item.iUserID]
+                );
+                console.log('Step 1 result: ', result);
+            });
+            await connection.commit(); // Commit the transaction
+            return {
+                sMessage: 'Data User Berhasil Diupdate!',
+                statusReq: true,
+                statusCode: 200
+            };
+        } catch (error) {
+            console.error('Error updating user status:', error);
+            await connection.rollback(); // Rollback the transaction in case of error
+            throw error; // Re-throw the error
+        } finally {
+            connection.release(); // Release the connection back to the pool
+        }
+    }
+
+    if (payload && payload.isEdit) {
+        const connection = await pool.getConnection(); // Get a connection from the pool
+        try {
+            await connection.beginTransaction(); // Start a transaction
+            payload.items.map(async (item: any) => {
+                console.log('item :', item);
+                const [result] = await connection.execute(
+                    `UPDATE tumx01 SET sFullName = ?, sEmail = ?, iModifyBy = ? WHERE iUserID = ?`,
+                    [item.sFullName, item.sEmail, item.iModifyBy, item.iUserID]
+                );
+                console.log('Step 1 result: ', result);
+
+                await connection.execute(
+                    `UPDATE tudt01 SET sRole = ?, iModifyBy = ? WHERE iUserID = ?`,
+                    [item.sRole, item.iModifyBy, item.iUserID]
+                );
+
+                await connection.execute(
+                    `UPDATE tumx02 SET sPassword = ?, iModifyBy = ? WHERE iUserID = ?`,
+                    [item.sPassword, item.iModifyBy, item.iUserID]
+                );
+            });
+            await connection.commit(); // Commit the transaction
+            return {
+                sMessage: 'Data User Berhasil Diupdate!',
+                statusReq: true,
+                statusCode: 200
+            };
+        } catch (error) {
+            console.error('Error updating user:', error);
+            await connection.rollback(); // Rollback the transaction in case of error
+            throw error; // Re-throw the error
+        } finally {
+            connection.release(); // Release the connection back to the pool
+        }
+    }
+
+
+    const connection = await pool.getConnection(); // Get a connection from the pool
     try {
         await connection.beginTransaction(); // Start a transaction
+        payload.items.map(async (item: any) => {
+            const [result] = await connection.execute(
+                `INSERT INTO tumx01 (sUserName, sFullName, sEmail, iStatus, iCreateBy) 
+                VALUES (?, ?, ?, ?, ?)`,
+                [item.sUserName, item.sFullName, item.sEmail, 1, item.iModifyBy]
+            );
 
+            console.log('Step 1 result: ', result);
 
-        // Step 1: Insert user data into tumx01
-        const [result] = await connection.execute(
-            `INSERT INTO tumx01 (sUserName, sFullName, sEmail, iStatus, iCreateBy) 
-            VALUES (?, ?, ?, ?, ?)`,
-            [user.sUserName, user.sFullName, user.sEmail, 1, 1]
-        );
+            // Step 2: Get the inserted ID
+            const [rows]: any = await connection.query('SELECT LAST_INSERT_ID() as insertedId');
+            const insertedId = rows[0].insertedId;
 
-        // Step 2: Get the inserted ID
-        const [rows]: any = await connection.query('SELECT LAST_INSERT_ID() as insertedId');
-        const insertedId = rows[0].insertedId;
+            console.log('Step 2 result: ', rows);
 
-        // Step 3: Insert user role data into tudt01
-        await connection.execute(
-            `INSERT INTO tudt01 (iUserID, sRole, iStatus, iCreateBy) 
-            VALUES (?, ?, ?, ?)`,
-            [insertedId, 'user', 1, 1]
-        );
+            await connection.execute(
+                `INSERT INTO tudt01 (iUserID, sRole, iStatus, iCreateBy) 
+                VALUES (?, ?, ?, ?)`,
+                [insertedId, item.sRole, 1, item.iModifyBy]
+            );
 
-        await connection.commit(); // Commit the transaction
+            await connection.commit(); // Commit the transaction
+            const saltRounds = 10; // Number of salt rounds for bcrypt
+            const hashedPassword = await bcrypt.hash(item.sPassword ?? '123', saltRounds);
 
+            console.log('Step 4 result: ', hashedPassword);
 
-        // Step 4: Hash the password
-        const saltRounds = 10; // Number of salt rounds for bcrypt
-        const hashedPassword = await bcrypt.hash(user.sPassword as string, saltRounds);
+            await connection.execute(
+                `INSERT INTO tumx02 (iUserID, iSeq, sPassword, iStatus, iCreateBy) 
+                VALUES (?, ?, ? , ? , ?)`,
+                [insertedId, 1, hashedPassword, 1, item.iModifyBy]
+            );
+            console.log('Step 5 result: ', insertedId);
 
-        // Step 5: Insert the hashed password and inserted ID into tumx02
-        await connection.execute(
-            `INSERT INTO tumx02 (iUserID, iSeq, sPassword, iStatus, iCreateBy) 
-            VALUES (?, ?, ? , ? , ?)`,
-            [insertedId, 1, hashedPassword, 1, 1]
-        );
+            await connection.commit(); // Commit the transaction
+        });
 
-        await connection.commit(); // Commit the transaction
-        return insertedId; // Return the inserted ID
+        return {
+            sMessage: 'Data User Berhasil Dibuat!',
+            statusReq: true,
+            statusCode: 200
+        };
     } catch (error) {
-        await connection.rollback(); // Rollback the transaction in case of error
         console.error('Error creating user:', error);
+        await connection.rollback(); // Rollback the transaction in case of error
         throw error; // Re-throw the error
     } finally {
         connection.release(); // Release the connection back to the pool
@@ -72,6 +145,6 @@ export async function createUser(user: User) {
 
 // Read all users
 export async function getUsers() {
-    const [rows] = await pool.query('SELECT * FROM tumx01');
+    const [rows] = await pool.query('SELECT * FROM v_user');
     return rows;
 }

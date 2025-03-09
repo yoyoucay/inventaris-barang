@@ -6,6 +6,7 @@ interface ApiResponseOptions {
     statusReq: boolean;
     statusCode: number;
     data?: any; // Optional data payload
+    items?: any; // Optional data payload
 }
 
 export const apiResponse = (options: ApiResponseOptions) => {
