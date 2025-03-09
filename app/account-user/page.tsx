@@ -22,7 +22,7 @@ export default function UserData() {
     const { user, isAuthenticated } = useContext(UserContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEdit, setIsEdit] = useState<boolean>(false);
-    const [formData, setFormData] = useState<BarangProps | any>({
+    const [formData, setFormData] = useState<any>({
         sUserName: '',
         sFullName: '',
         sEmail: '',
@@ -91,7 +91,7 @@ export default function UserData() {
             handleClose();
         } else {
             const data = await response;
-            setError(data.sMessage || 'Registrasi Barang gagal. Silahkan coba lagi.');
+            setError(data.sMessage || 'Update User gagal. Silahkan coba lagi.');
         }
     };
 

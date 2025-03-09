@@ -2,52 +2,74 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '../../modules/lib/definitions/user';
+import { httpPost } from '@/modules/lib/utils/https';
+import { updateState } from '@/modules/lib/utils/updateState';
 
 export default function Register() {
     const router = useRouter();
-    const [modalData, setModalData] = useState<User>({
+
+
+    const [localLoading, setLocalLoading] = useState<boolean>(false);
+    const [formData, setFormData] = useState<any>({
         sUserName: null,
         sFullName: null,
         sEmail: null,
         sPassword: null,
-        sRole: 'user'
+        sRole: 'user',
+        iUserID: null,
     });
     const [error, setError] = useState<string | null>(null);
 
-    const setData = (key: string, value: string) => {
-        setModalData((prevState) => ({
-            ...prevState,
-            [key]: value,
-        }));
+    const handleChange = (key: keyof typeof formData, value: any) => {
+        if (typeof value === 'string') {
+            updateState(setFormData, key, value);
+        } else if (value instanceof File) {
+            updateState(setFormData, key, value);
+        } else {
+            updateState(setFormData, key, value?.value ?? value);
+        }
     };
 
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: any) => {
+        setLocalLoading(true);
         e.preventDefault();
 
-        let payload: User = {
-            sUserName: modalData.sUserName,
-            sFullName: modalData.sFullName,
-            sEmail: modalData.sEmail,
-            sPassword: modalData.sPassword,
-            sRole: modalData.sRole
+        let requiredFields = [
+            { name: 'sUserName', alias: 'Username' },
+            { name: 'sFullName', alias: 'Nama User' },
+            { name: 'sEmail', alias: 'Email' },
+        ];
+        if (!formData.data) {
+            for (const field of requiredFields) {
+                if (!formData[field.name]) {
+                    setError(`${field.alias} wajib diisi`);
+                    return;
+                }
+            }
         }
-
-        console.log('payload :', payload);
-
-        const response = await fetch(process.env.NEXT_PUBLIC_BASE_PATH + '/api/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-
-        console.log('response :', response);
-
-        if (response.ok) {
+        let payload: any;
+        payload = {
+            totalItems: 1,
+            items: [{
+                iUserID: formData.iUserID,
+                sUserName: formData.sUserName,
+                sFullName: formData.sFullName,
+                sEmail: formData.sEmail,
+                sRole: typeof formData.sRole === 'object' ? formData.sRole.value : formData.sRole,
+                iModifyBy: 1,
+            }],
+            isEdit: false,
+            isUpdateStatus: false
+        };
+        console.log('payload before send : ', payload)
+        const response: any = await httpPost('/api/users', payload);
+        setLocalLoading(false);
+        console.log('response:', response);
+        if (response.statusReq && response.statusCode === 200) {
             router.push('/login');
         } else {
-            console.log('response Err:', response);
-            alert('Registration failed');
+            const data = await response;
+            setError(data.sMessage || 'Update User gagal. Silahkan coba lagi.');
         }
     };
 
@@ -68,8 +90,8 @@ export default function Register() {
                         <input
                             type="text"
                             id="sUserName"
-                            defaultValue={modalData?.sUserName || ''}
-                            onChange={(e) => setData('sUserName', e.target.value)}
+                            onChange={(e) => handleChange('sUserName', e.target.value)}
+                            defaultValue={formData.sUserName || ''}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             required
                         />
@@ -81,8 +103,8 @@ export default function Register() {
                         <input
                             type="text"
                             id="sFullName"
-                            defaultValue={modalData?.sFullName || ''}
-                            onChange={(e) => setData('sFullName', e.target.value)}
+                            onChange={(e) => handleChange('sFullName', e.target.value)}
+                            defaultValue={formData.sFullName || ''}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             required
                         />
@@ -94,8 +116,8 @@ export default function Register() {
                         <input
                             type="email"
                             id="sEmail"
-                            defaultValue={modalData?.sEmail || ''}
-                            onChange={(e) => setData('sEmail', e.target.value)}
+                            onChange={(e) => handleChange('sEmail', e.target.value)}
+                            defaultValue={formData.sEmail || ''}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             required
                         />
@@ -107,8 +129,8 @@ export default function Register() {
                         <input
                             type="password"
                             id="password"
-                            defaultValue={''}
-                            onChange={(e) => setData('sPassword', e.target.value)}
+                            onChange={(e) => handleChange('sPassword', e.target.value)}
+                            defaultValue={formData.sPassword || ''}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             required
                         />
