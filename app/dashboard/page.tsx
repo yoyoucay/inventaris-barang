@@ -14,7 +14,8 @@ import { httpGet } from '@/modules/lib/utils/https';
 export default function Dashboard() {
     const { user, logout, isAuthenticated } = useContext(UserContext);
     const [data, setData] = useState<any>({
-        barang: undefined
+        barang: undefined,
+        rowData: undefined
     });
     const [pageState, setPageState] = useState<number>(0);
     const router = useRouter();
@@ -25,58 +26,82 @@ export default function Dashboard() {
             router.push('/login');
             return;
         }
-        setPageState(1)
-
     }, [user]);
 
-    const chartOptions = {
-        chart: {
-            id: 'basic-bar',
-        },
-        xaxis: {
-            categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999],
-        },
-    };
 
-    const chartSeries = [
-        {
-            name: 'Sales',
-            data: [30, 40, 45, 50, 49, 60, 70, 91, 125],
-        },
-    ];
-
-    // Define column definitions
     const columnDefs = [
-        { headerName: 'ID', field: 'id', sortable: true, filter: true },
-        { headerName: 'Name', field: 'name', sortable: true, filter: true },
-        { headerName: 'Age', field: 'age', sortable: true, filter: true },
-        { headerName: 'Email', field: 'email', sortable: true, filter: true },
-    ];
-
-    // Define row data
-    const rowData = [
-        { id: 1, name: 'John Doe', age: 28, email: 'john@example.com' },
-        { id: 2, name: 'Jane Smith', age: 34, email: 'jane@example.com' },
-        { id: 3, name: 'Sam Wilson', age: 45, email: 'sam@example.com' },
-        { id: 4, name: 'Emily Davis', age: 23, email: 'emily@example.com' },
+        { headerName: 'ID', field: 'iTransID', sortable: true, filter: true, hide: true },
+        { headerName: 'Kode', field: 'sKode', sortable: true, filter: true },
+        { headerName: 'Nama', field: 'sName', sortable: true, filter: true },
+        { headerName: 'Semester', field: 'iSemester', sortable: true, filter: true },
+        { headerName: 'Tahun', field: 'iYear', sortable: true, filter: true },
+        { headerName: 'Baik', field: 'iCondition1', sortable: true, filter: true },
+        { headerName: 'Kurang Baik', field: 'iCondition2', sortable: true, filter: true },
+        { headerName: 'Rusak', field: 'iCondition3', sortable: true, filter: true },
+        { headerName: 'Deskripsi', field: 'sDesc', sortable: true, filter: true },
     ];
 
     const getData = async () => {
         let response: any;
-        response = await httpGet('/api/barang');
-        const hasil = await response;
+        response = await httpGet('/api/entry');
+        let entry = await response;
 
-        console.log('hasil : ', hasil)
+        let rowData = entry;
+
+        entry = entry.map((item: any) => ({
+            ...item,
+            iCondition1: Number(item.iCondition1),
+            iCondition2: Number(item.iCondition2),
+            iCondition3: Number(item.iCondition3),
+        }));
+
+        let cardData = {
+            sarana: entry.filter((item: any) => item.iType == "Sarana").length,
+            prasarana: entry.filter((item: any) => item.iType == "Prasarana").length,
+            baik: entry.reduce((prev: any, current: any) => prev + current.iCondition1, 0),
+            kurangBaik: entry.reduce((prev: any, current: any) => prev + current.iCondition2, 0),
+            rusak: entry.reduce((prev: any, current: any) => prev + current.iCondition3, 0),
+        };
+
         setData({
-            ...data, barang: {
-                sarana: hasil.filter((item: any) => item.iType === 0).length,
-                prasarana: hasil.filter((item: any) => item.iType === 1).length
-            }
+            ...data,
+            sarana: entry.filter((item: any) => item.iType == "Sarana").length,
+            prasarana: entry.filter((item: any) => item.iType == "Prasarana").length,
+            baik: entry.reduce((prev: any, current: any) => prev + current.iCondition1, 0),
+            kurangBaik: entry.reduce((prev: any, current: any) => prev + current.iCondition2, 0),
+            rusak: entry.reduce((prev: any, current: any) => prev + current.iCondition3, 0),
+        });
+
+        const chartData = entry.map((item: any) => ({
+            name: item.sName,
+            data: [item.iCondition1, item.iCondition2, item.iCondition3],
+        }));
+
+        setData({
+            ...data,
+            cardData: cardData,
+            chartData: chartData,
+            rowData: rowData
         });
     }
 
+    const chartOptions = {
+        chart: {
+            id: 'basic-bar',
+            type: 'bar',
+        },
+        xaxis: {
+            categories: ['Baik', 'Kurang Baik', 'Rusak'],
+        },
+    };
+
+    const chartSeries = data.chartData || [];
+
+    console.log('data:  ', data)
+
     useEffect(() => {
         getData();
+        setPageState(1);
     }, []);
 
 
@@ -94,29 +119,34 @@ export default function Dashboard() {
                             </Card>
                             <Card>
                                 <h1 className="text-1xl font-bold mb-4">Jumlah Barang terdaftar</h1>
-                                <p className="text-2xl font-bold">Sarana : {data?.barang?.sarana ?? 0} </p>
-                                <p className="text-2xl font-bold">Prasarana : {data?.barang?.prasarana ?? 0} </p>
+                                <p className="text-2xl font-bold">Sarana : {data.cardData?.sarana ?? 0} </p>
+                                <p className="text-2xl font-bold">Prasarana : {data.cardData?.prasarana ?? 0} </p>
+                            </Card>
+                            <Card>
+                                <h1 className="text-1xl font-bold mb-4">Kondisi Inventaris</h1>
+                                <p className="text-xl font-bold">Baik : {data.cardData?.baik ?? 0} </p>
+                                <p className="text-xl font-bold">Kurang Baik : {data.cardData?.kurangBaik ?? 0} </p>
+                                <p className="text-xl font-bold">Rusak : {data.cardData?.rusak ?? 0} </p>
                             </Card>
                         </div>
 
                         <div className='grid grid-cols-2 gap-4'>
                             <Card>
-                                <h1 className="text-2xl font-bold mb-4">Sales Chart</h1>
+                                <h1 className="text-2xl font-bold mb-4">Kondisi Inventaris</h1>
                                 <Chart
                                     options={chartOptions}
                                     series={chartSeries}
-                                    type="line"
+                                    type="bar"
                                     height={350}
                                 />
                             </Card>
                             <Card>
-                                <h1 className="text-2xl font-bold mb-4">History Data</h1>
+                                <h1 className="text-2xl font-bold mb-4">Entry Inventory</h1>
                                 <DataTable
                                     columnDefs={columnDefs}
-                                    rowData={rowData}
+                                    rowData={data.rowData || []}
                                     pagination={true}
                                     paginationPageSize={5}
-
                                 />
                             </Card>
                         </div>
@@ -127,5 +157,3 @@ export default function Dashboard() {
         </PageLayout>
     ) : <Loading />;
 }
-
-
