@@ -21,6 +21,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Invent App",
   description: "Aplikasi Inventaris Sekolah SMP Negeri 8 Batam",
+  icons: {
+    icon: `${process.env.NEXT_PUBLIC_BASE_PATH}/favicon/favicon.ico`, // Path to your favicon
+  },
 };
 
 
