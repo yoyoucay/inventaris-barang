@@ -18,6 +18,7 @@ interface DataTableProps {
     pagination?: boolean;
     paginationPageSize?: number;
     rowSelection?: 'single' | 'multiple'; // Enable row selection
+    onFilterChanged?: (event: any) => void;
 }
 
 const DataTable: React.FC<DataTableProps> = ({
@@ -26,6 +27,7 @@ const DataTable: React.FC<DataTableProps> = ({
     pagination = true,
     paginationPageSize = 10,
     rowSelection = 'multiple',
+    onFilterChanged
 }) => {
 
     const myTheme = themeQuartz.withParams({ accentColor: 'red' });
@@ -38,6 +40,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 pagination={pagination} // Enable/disable pagination
                 paginationPageSize={paginationPageSize} // Rows per page
                 domLayout="autoHeight" // Automatically adjust height based on content
+                onFilterChanged={onFilterChanged}
                 rowSelection={rowSelection}
             />
         </div>

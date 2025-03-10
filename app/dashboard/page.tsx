@@ -18,6 +18,7 @@ export default function Dashboard() {
         rowData: undefined
     });
     const [pageState, setPageState] = useState<number>(0);
+    const [filteredData, setFilteredData] = useState<any>([]);
     const router = useRouter();
 
     // Redirect to login if user is not authenticated
@@ -86,6 +87,23 @@ export default function Dashboard() {
         });
     }
 
+    const onFilterChanged = (params: any) => {
+        const filteredRows: any = [];
+        params.api.forEachNodeAfterFilter((node: any) => {
+            filteredRows.push(node.data);
+        });
+        setFilteredData(filteredRows);
+        const chartData = filteredRows.map((item: any) => ({
+            name: item.sName,
+            data: [item.iCondition1, item.iCondition2, item.iCondition3],
+        }));
+        setData({
+            ...data,
+            chartData: chartData,
+        });
+    };
+
+
     const chartOptions = {
         chart: {
             id: 'basic-bar',
@@ -148,6 +166,7 @@ export default function Dashboard() {
                                     rowData={data.rowData || []}
                                     pagination={true}
                                     paginationPageSize={5}
+                                    onFilterChanged={onFilterChanged}
                                 />
                             </Card>
                         </div>

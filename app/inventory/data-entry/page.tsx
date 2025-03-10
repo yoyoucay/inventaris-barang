@@ -223,7 +223,7 @@ export default function MasterData() {
                     </div>
 
                 </main>
-                <Modal isOpen={isModalOpen} onConfirm={(e: any) => handleSubmit(e)} onClose={() => handleClose()} title="Master Data Barang">
+                <Modal isOpen={isModalOpen} onConfirm={(e: any) => handleSubmit(e)} onClose={() => handleClose()} title="Data Entry Inventory">
 
                     <div className='mb-4'>
                         <div className="grid grid-cols-2 gap-4">
