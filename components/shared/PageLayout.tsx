@@ -28,7 +28,7 @@ export default function PageLayout({ children }: DashboardLayoutProps) {
     return (
         <div className="flex min-h-screen bg-gray-100">
             <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} sRole={user?.sRole} />
-            <div className={`flex-1 ${isSidebarOpen ? 'ml-72' : 'ml-20'} transition-all duration-300 ease-in-out`}>
+            <div className={`flex-1 ${isSidebarOpen ? 'ml-72' : 'ml-20'} transition-all duration-300 ease-in-out`} style={{ backgroundImage: `url('${process.env.NEXT_PUBLIC_BASE_PATH}/images/background/img-school.jpg')`, backgroundPosition: 'center', backgroundSize: '1000px 1000px' }}>
                 <Navbar toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
                 <main className="w-full p-2 mt-16">{children}</main>
             </div>
