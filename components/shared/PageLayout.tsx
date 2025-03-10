@@ -17,8 +17,6 @@ export default function PageLayout({ children }: DashboardLayoutProps) {
         setIsSidebarOpen(!isSidebarOpen);
     };
 
-    console.log('user :', user);
-
     // Redirect to login if user is not authenticated
     useEffect(() => {
         if (!isAuthenticated) {

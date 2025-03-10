@@ -1,7 +1,7 @@
-import { useUser } from '@/context/UserContext';
+import { UserContext, useUser } from '@/context/UserContext';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 interface NavbarProps {
     toggleSidebar: () => void;
@@ -10,6 +10,7 @@ interface NavbarProps {
 
 
 export default function Navbar({ toggleSidebar, isSidebarOpen }: NavbarProps) {
+    const { user, isAuthenticated } = useContext(UserContext);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { logout } = useUser();
     const pathname = usePathname(); // Use the useRouter hook
@@ -21,6 +22,8 @@ export default function Navbar({ toggleSidebar, isSidebarOpen }: NavbarProps) {
         path = path.replace("-", " ");
         return path;
     };
+
+    console.log('user : ', user)
 
     return (
         <header className={`fixed top-0 flex gap-4 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'left-72' : 'left-22'} right-0 bg-white shadow-md p-3 z-10`}>
@@ -38,27 +41,12 @@ export default function Navbar({ toggleSidebar, isSidebarOpen }: NavbarProps) {
                 </div>
 
                 <div className="flex justify-end items-center space-x-4">
-                    <button className="text-gray-600 hover:text-gray-800">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                            />
-                        </svg>
-                    </button>
+
                     <div className="relative">
-                        <img
-                            src="/images/user.png" // Placeholder image
-                            alt="User"
-                            className="w-10 h-10 rounded-full cursor-pointer"
+
+                        <img className="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
+                            src={user?.sImgUrl ? process.env.NEXT_PUBLIC_BASE_PATH + user.sImgUrl : "/images/user.png"}
+                            alt="Bordered avatar"
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         />
                         {isDropdownOpen && (

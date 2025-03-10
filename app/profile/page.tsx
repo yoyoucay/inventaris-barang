@@ -2,11 +2,12 @@
 
 import PageLayout from "@/components/shared/PageLayout";
 import { UserContext } from "@/context/UserContext";
-import { httpPost, httpPostFile } from "@/modules/lib/utils/https";
+import { useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from "react";
 
 export default function Profile() {
     const { user, isAuthenticated } = useContext(UserContext);
+    const router = useRouter();
 
     const [file, setFile] = useState<File | null>(null);
     const [fileUrl, setFileUrl] = useState<string | null>(user?.sImgUrl || null);
@@ -39,9 +40,8 @@ export default function Profile() {
             });
 
             if (response.ok) {
-                const result = await response.json();
-                setFileUrl(process.env.NEXT_PUBLIC_BASE_PATH + result.fileUrl);
                 setError(null);
+                router.push("/logout");
             } else {
                 const errorData = await response.json();
                 setError(errorData.error || "Failed to upload file");
