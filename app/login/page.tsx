@@ -44,7 +44,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="min-h-screen flex items-center justify-center bg-no-repeat bg-center bg-cover" style={{ backgroundImage: "url('/images/login-background.png')" }}>
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
                 <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
                 {error && (
@@ -52,7 +52,7 @@ export default function LoginPage() {
                         {error}
                     </div>
                 )}
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 bg-gray-200 p-4 rounded">
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                             Username ID

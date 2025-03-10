@@ -69,12 +69,6 @@ export default function Navbar({ toggleSidebar, isSidebarOpen }: NavbarProps) {
                                 >
                                     Profile
                                 </Link>
-                                <Link
-                                    href="/settings"
-                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                >
-                                    Settings
-                                </Link>
                                 <button
                                     onClick={() => logout()}
                                     className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-blue-50"

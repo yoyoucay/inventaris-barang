@@ -21,7 +21,7 @@ export const httpRequest = async <T>(
     const response = await fetch(process.env.NEXT_PUBLIC_BASE_PATH + url, {
         method,
         headers: { ...defaultHeaders, ...headers },
-        body: body ? JSON.stringify(body) : null,
+        body: body instanceof FormData ? body : body ? JSON.stringify(body) : null,
     });
     return response.json() as Promise<T>;
 };
@@ -40,5 +40,19 @@ export const httpPut = async <T>(url: string, body: any, headers?: Record<string
 
 export const httpDelete = async <T>(url: string, headers?: Record<string, string>): Promise<T> => {
     return httpRequest<T>(url, { method: 'DELETE', headers });
+};
+
+export const httpPostFile = async <T>(url: string, file: File, headers?: Record<string, string>): Promise<T> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return httpRequest<T>(url, {
+        method: 'POST',
+        headers: {
+            ...headers,
+            'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+    });
 };
 

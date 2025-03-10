@@ -1,9 +1,7 @@
 // app/api/barang/route.ts
-import bcrypt from "bcrypt";
 import pool from '@/modules/lib/db';
-import { BarangProps as Barang } from '@/modules/lib/definitions/barang';
-import { NextResponse } from 'next/server';
 import { apiResponse } from "@/modules/lib/utils/apiResponse";
+import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
     const payload = await request.json();
@@ -23,7 +21,7 @@ export async function crudBarang(payload: any) {
     try {
         await connection.beginTransaction(); // Start a transaction
 
-        const queries = payload.items.map((item:any) => {
+        const queries = payload.items.map((item: any) => {
             if (payload.isUpdateStatus) {
                 return `UPDATE tumx03 SET iStatus = ?, iModifyBy = ? WHERE iBarangID = ?`;
             } else if (payload.isEdit) {
@@ -33,9 +31,9 @@ export async function crudBarang(payload: any) {
             }
         });
 
-        
 
-        const params = payload.items.map((item:any) => {
+
+        const params = payload.items.map((item: any) => {
             if (payload.isUpdateStatus) {
                 return [item.iStatus, item.iModifyBy, item.iBarangID];
             } else if (payload.isEdit) {
@@ -48,7 +46,7 @@ export async function crudBarang(payload: any) {
         console.log('queries : ', queries);
         console.log('params : ', params);
 
-        const results = await Promise.all(params.map((param:any, index:any) => connection.execute(queries[index], param)));
+        const results = await Promise.all(params.map((param: any, index: any) => connection.execute(queries[index], param)));
 
         console.log('results : ', results);
 

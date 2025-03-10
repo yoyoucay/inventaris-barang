@@ -34,10 +34,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 const decoded = jwt.decode(token) as any;
 
                 if (decoded && decoded.user) {
-                    const { iUserID, sUserName, sFullName, sEmail, sRole } = decoded.user;
+                    const { iUserID, sUserName, sFullName, sEmail, sImgUrl, sRole } = decoded.user;
 
                     // Set the user state
-                    setUser({ iUserID, sUserName, sFullName, sEmail, sRole });
+                    setUser({ iUserID, sUserName, sFullName, sEmail, sImgUrl, sRole });
                     setIsAuthenticated(true); // Mark the user as authenticated
                 }
             } catch (error) {
@@ -55,10 +55,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             const decoded = jwt.decode(token) as any;
 
             if (decoded && decoded.user) {
-                const { iUserID, sUserName, sFullName, sEmail, sRole } = decoded.user;
+                const { iUserID, sUserName, sFullName, sEmail, sImgUrl, sRole } = decoded.user;
 
                 // Set the user state
-                setUser({ iUserID, sUserName, sFullName, sEmail, sRole });
+                setUser({ iUserID, sUserName, sFullName, sEmail, sImgUrl, sRole });
                 setIsAuthenticated(true); // Mark the user as authenticated
 
                 // Store the token in localStorage
