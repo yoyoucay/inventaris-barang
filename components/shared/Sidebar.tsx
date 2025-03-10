@@ -10,8 +10,6 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, sRole }: SidebarProps) {
-
-    console.log('sRole :', sRole);
     const [isHovered, setIsHovered] = useState(false);
     return (
         <aside
@@ -52,7 +50,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, sRole }: Side
                                 )}
                             </h2>
                         </div>
-                        <MenuList isSidebarOpen={isSidebarOpen} isHovered={isHovered} />
+                        <MenuList isSidebarOpen={isSidebarOpen} isHovered={isHovered} sRole={sRole} />
                     </div>
                 </nav>
             </div>

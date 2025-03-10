@@ -36,6 +36,7 @@ export default function Reports() {
             "Baik": item.iCondition1,
             "Krg. Baik": item.iCondition2,
             "Rusak": item.iCondition3,
+            "Jumlah": item.iSumCondition,
             "Deskripsi": item.sDesc
         })));
         setPageState(1)

@@ -3,23 +3,18 @@
 
 import Card from '@/components/shared/Card';
 import DataTable from '@/components/shared/DataTable';
-import DateInput from '@/components/shared/DateInput';
 import Divider from '@/components/shared/Divider';
 import FileUpload from '@/components/shared/FileUpload';
 import InputText from '@/components/shared/InputText';
 import Loading from '@/components/shared/Loading';
 import Modal from '@/components/shared/Modal';
 import PageLayout from '@/components/shared/PageLayout';
-import BarcodeComponent, { BarcodeRef } from '@/components/shared/PdfBarcode';
 import SelectInput from '@/components/shared/SelectInput';
 import Textarea from '@/components/shared/TextArea';
 import { UserContext } from '@/context/UserContext';
-import { BarangProps } from '@/modules/lib/definitions/barang';
-import { types, uoms } from '@/modules/lib/definitions/uom';
 import { httpGet, httpPost } from '@/modules/lib/utils/https';
 import { updateState } from '@/modules/lib/utils/updateState';
-import { useContext, useEffect, useRef, useState } from 'react';
-import { OptionProps } from 'react-select';
+import { useContext, useEffect, useState } from 'react';
 
 interface YearOption {
     value: string;
@@ -34,9 +29,9 @@ export default function MasterData() {
         iSemester: { value: '', label: '' },
         iYear: { value: '', label: '' },
         sDesc: '',
-        iCondition1: '',
-        iCondition2: '',
-        iCondition3: '',
+        iCondition1: "0",
+        iCondition2: "0",
+        iCondition3: "0",
     });
     const [pageState, setPageState] = useState<number>(0);
     const [error, setError] = useState<string>('');
@@ -73,7 +68,6 @@ export default function MasterData() {
         e.preventDefault();
 
         let payload: any;
-        console.log('formData.data : ', formData.data)
         if (formData.data && formData.data.length > 0) {
             let data = formData.data.map((item: any) => {
                 return {
@@ -112,9 +106,9 @@ export default function MasterData() {
                     sKode: formData.sKode,
                     iSemester: formData.iSemester,
                     iYear: formData.iYear,
-                    iCondition1: formData.iCondition1,
-                    iCondition2: formData.iCondition2,
-                    iCondition3: formData.iCondition3,
+                    iCondition1: formData.iCondition1 ?? 0,
+                    iCondition2: formData.iCondition2 ?? 0,
+                    iCondition3: formData.iCondition3 ?? 0,
                     sDesc: formData.sDesc ?? '',
                     iStatus: 1,
                     iModifyBy: user?.iUserID,
@@ -138,9 +132,12 @@ export default function MasterData() {
         setError('');
         setFormData({
             sKode: '',
-            sName: '',
-            iType: { value: '', label: '' },
-            sUoM: { value: '', label: '' },
+            iSemester: { value: '', label: '' },
+            iYear: { value: '', label: '' },
+            sDesc: '',
+            iCondition1: "0",
+            iCondition2: "0",
+            iCondition3: "0",
         });
     };
     const getData = async () => {
@@ -171,12 +168,10 @@ export default function MasterData() {
     const fetchBarangOptions = async () => {
         try {
             const response: any = await httpGet('/api/barang');
-            console.log("response ", response);
             const options: YearOption[] = response.map((item: any) => ({
                 value: item.sKode,
                 label: item.sKode + ' - ' + item.sName,
             }));
-            console.log(options);
             setBarangOptions(options);
         } catch (error) {
             console.log(error);
@@ -269,7 +264,7 @@ export default function MasterData() {
                                 label="Baik"
                                 type="number"
                                 onChange={(e) => handleChange('iCondition1', e.target.value)}
-                                defaultValue={formData.iCondition1 || 0}
+                                defaultValue={formData.iCondition1 || "0"}
                             />
                             <InputText
                                 id={'iCondition2'}
@@ -278,7 +273,7 @@ export default function MasterData() {
                                 label="Kurang Baik"
                                 type="number"
                                 onChange={(e) => handleChange('iCondition2', e.target.value)}
-                                defaultValue={formData.iCondition2 || 0}
+                                defaultValue={formData.iCondition2 || "0"}
                             />
                             <InputText
                                 id={'iCondition3'}
@@ -287,7 +282,7 @@ export default function MasterData() {
                                 label="Rusak"
                                 type="number"
                                 onChange={(e) => handleChange('iCondition3', e.target.value)}
-                                defaultValue={formData.iCondition3 || 0}
+                                defaultValue={formData.iCondition3 || "0"}
                             />
                         </div>
                         <Textarea

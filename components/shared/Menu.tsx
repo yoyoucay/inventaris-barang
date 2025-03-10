@@ -8,13 +8,15 @@ interface MenuItemProps {
         label: string;
         icon: string; // Boxicon class name
         href: string;
-        submenu?: Array<{ id: number; label: string; icon: string; href: string }>;
+        submenu?: Array<{ id: number; label: string; icon: string; href: string; sRole?: string }>;
+        sRole?: string;
     };
     isSidebarOpen: boolean; // Add a prop to check if the sidebar is open
     isHovered?: boolean;
+    sRole: string;
 }
 
-const MenuItem = ({ item, isSidebarOpen, isHovered }: MenuItemProps) => {
+const MenuItem = ({ item, isSidebarOpen, isHovered, sRole }: MenuItemProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     useEffect(() => {
         if (!isSidebarOpen && !isHovered) {
@@ -24,6 +26,9 @@ const MenuItem = ({ item, isSidebarOpen, isHovered }: MenuItemProps) => {
 
     // Check if the item has a submenu
     const hasSubmenu = !!item.submenu;
+
+    // Filter the submenu items by sRole
+    const filteredSubmenu = item.submenu?.filter((subItem) => !subItem.sRole || subItem.sRole === sRole);
 
     return (
         <li className="flex flex-col">
@@ -54,12 +59,12 @@ const MenuItem = ({ item, isSidebarOpen, isHovered }: MenuItemProps) => {
             )}
 
             {/* Submenu Items */}
-            {hasSubmenu && (
+            {hasSubmenu && filteredSubmenu && (
                 <ul
                     className={`ml-6 mt-1 space-y-1 overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
                         }`}
                 >
-                    {item.submenu?.map((subItem) => (
+                    {filteredSubmenu.map((subItem) => (
                         <li key={subItem.id}>
                             <a
                                 href={process.env.NEXT_PUBLIC_BASE_PATH + subItem.href}
@@ -76,11 +81,13 @@ const MenuItem = ({ item, isSidebarOpen, isHovered }: MenuItemProps) => {
     );
 };
 
-export const MenuList = ({ isSidebarOpen, isHovered }: { isSidebarOpen: boolean, isHovered?: boolean }) => {
+export const MenuList = ({ isSidebarOpen, isHovered, sRole }: { isSidebarOpen: boolean, isHovered?: boolean, sRole: string }) => {
+    const filteredMenuItems = menuItems.filter((item) => !item.sRole || item.sRole === sRole);
+
     return (
         <ul className="space-y-2">
-            {menuItems.map((item) => (
-                <MenuItem key={item.id} item={item} isSidebarOpen={isSidebarOpen} isHovered={isHovered} />
+            {filteredMenuItems.map((item) => (
+                <MenuItem key={item.id} item={item} isSidebarOpen={isSidebarOpen} isHovered={isHovered} sRole={sRole} />
             ))}
         </ul>
     );
