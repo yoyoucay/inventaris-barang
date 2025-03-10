@@ -38,6 +38,7 @@ export default function Dashboard() {
         { headerName: 'Baik', field: 'iCondition1', sortable: true, filter: true },
         { headerName: 'Kurang Baik', field: 'iCondition2', sortable: true, filter: true },
         { headerName: 'Rusak', field: 'iCondition3', sortable: true, filter: true },
+        { headerName: 'Jumlah', field: 'iSumCondition', sortable: true, filter: false },
         { headerName: 'Deskripsi', field: 'sDesc', sortable: true, filter: true },
     ];
 

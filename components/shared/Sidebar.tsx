@@ -1,14 +1,17 @@
 // components/Sidebar.tsx
-
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { MenuList } from "./Menu";
+import { UserContext } from "@/context/UserContext";
 
 interface SidebarProps {
     isSidebarOpen: boolean;
     setIsSidebarOpen: (value: boolean) => void;
+    sRole: any;
 }
 
-export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }: SidebarProps) {
+export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, sRole }: SidebarProps) {
+
+    console.log('sRole :', sRole);
     const [isHovered, setIsHovered] = useState(false);
     return (
         <aside

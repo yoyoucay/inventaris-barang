@@ -17,6 +17,8 @@ export default function PageLayout({ children }: DashboardLayoutProps) {
         setIsSidebarOpen(!isSidebarOpen);
     };
 
+    console.log('user :', user);
+
     // Redirect to login if user is not authenticated
     useEffect(() => {
         if (!isAuthenticated) {
@@ -27,7 +29,7 @@ export default function PageLayout({ children }: DashboardLayoutProps) {
 
     return (
         <div className="flex min-h-screen bg-gray-100">
-            <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+            <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} sRole={user?.sRole} />
             <div className={`flex-1 ${isSidebarOpen ? 'ml-72' : 'ml-20'} transition-all duration-300 ease-in-out`}>
                 <Navbar toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
                 <main className="w-full p-2 mt-16">{children}</main>

@@ -52,7 +52,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
     limitOption, // New prop to limit the number of options
 }) => {
     // Apply the limitOption filter if provided
-    const filteredOptions = limitOption ? options.slice(0, limitOption) : options;
+    // const filteredOptions = limitOption ? options.slice(0, limitOption) : options;
 
     return (
         <div className={`mb-4 ${className}`}>
@@ -66,7 +66,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
                 name={name}
                 defaultValue={defaultValue}
                 onChange={onChange}
-                options={filteredOptions} // Use the filtered options
+                options={options}
                 styles={customStyles}
                 isClearable={isClearable}
                 placeholder={placeholder}

@@ -27,9 +27,6 @@ interface YearOption {
 }
 
 export default function MasterData() {
-
-
-
     const { user, isAuthenticated } = useContext(UserContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState<any>({
@@ -65,9 +62,10 @@ export default function MasterData() {
         label: (2020 + i).toString(),
     }));
 
+    const currentSemester = new Date().getMonth() >= 6 ? 2 : 1;
     const semesters: YearOption[] = Array.from({ length: 2 }, (_, i) => ({
-        value: (1 + i).toString(),
-        label: "Semester " + (1 + i).toString(),
+        value: (currentSemester + i) % 2 === 0 ? '2' : '1',
+        label: `${(currentSemester + i) % 2 === 0 ? 'Genap' : 'Ganjil'}`,
     }));
 
     const handleSubmit = async (e: any) => {
@@ -117,7 +115,7 @@ export default function MasterData() {
                     iCondition1: formData.iCondition1,
                     iCondition2: formData.iCondition2,
                     iCondition3: formData.iCondition3,
-                    sDesc: formData.sDesc,
+                    sDesc: formData.sDesc ?? '',
                     iStatus: 1,
                     iModifyBy: user?.iUserID,
                 }],
@@ -166,6 +164,7 @@ export default function MasterData() {
         { headerName: 'Baik', field: 'iCondition1', sortable: true, filter: true },
         { headerName: 'Kurang Baik', field: 'iCondition2', sortable: true, filter: true },
         { headerName: 'Rusak', field: 'iCondition3', sortable: true, filter: true },
+        { headerName: 'Jumlah', field: 'iSumCondition', sortable: true, filter: false },
         { headerName: 'Deskripsi', field: 'sDesc', sortable: true, filter: true },
     ];
 
@@ -186,7 +185,7 @@ export default function MasterData() {
 
     useEffect(() => {
         fetchBarangOptions();
-    }, []);
+    }, [formData.sKode]);
 
 
     return pageState > 0 ? (
