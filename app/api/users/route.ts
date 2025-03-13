@@ -53,9 +53,12 @@ export async function crudUser(payload: any) {
                         [item.sRole, item.iModifyBy, item.iUserID]
                     );
 
+                    const saltRounds = 10;
+                    const hashedPassword = await bcrypt.hash(item.sPassword ?? '123', saltRounds);
+
                     await connection.execute(
                         `UPDATE tumx02 SET sPassword = ?, iModifyBy = ? WHERE iUserID = ?`,
-                        [item.sPassword, item.iModifyBy, item.iUserID]
+                        [hashedPassword, item.iModifyBy, item.iUserID]
                     );
                 })
             );

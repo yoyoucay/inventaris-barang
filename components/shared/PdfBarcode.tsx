@@ -31,7 +31,7 @@ const BarcodeComponent = forwardRef<BarcodeRef, BarcodeProps>(
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-                pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+                pdf.addImage(imgData, "PNG", 0, 0, 200, 100);
                 pdf.setFontSize(14);
 
                 // Convert PDF to Blob and generate a URL

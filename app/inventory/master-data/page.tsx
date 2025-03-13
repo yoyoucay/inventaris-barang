@@ -178,21 +178,21 @@ export default function MasterData() {
                 </div>
             ),
         },
-        {
-            headerName: 'Barcode',
-            field: 'sKode',
-            cellRenderer: (params: any) => (
-                <div className="items-center gap-2 justify-center">
-                    <button
-                        onClick={handlePreviewPDF}
-                        className="px-4 items-center text-center bg-blue-500 text-white rounded block mx-auto"
-                    >
-                        Print
-                    </button>
-                    <BarcodeComponent value={params.data.sKode} name={params.data.sName} ref={barcodeRef} />
-                </div>
-            ),
-        },
+        // {
+        //     headerName: 'Barcode',
+        //     field: 'sKode',
+        //     cellRenderer: (params: any) => (
+        //         <div className="items-center gap-2 justify-center">
+        //             <button
+        //                 onClick={handlePreviewPDF}
+        //                 className="px-4 items-center text-center bg-blue-500 text-white rounded block mx-auto"
+        //             >
+        //                 Print
+        //             </button>
+        //             <BarcodeComponent value={params.data.sKode} name={params.data.sName} ref={barcodeRef} />
+        //         </div>
+        //     ),
+        // },
         {
             headerName: 'Action',
             field: 'iBarangID',
