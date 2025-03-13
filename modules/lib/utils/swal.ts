@@ -1,30 +1,43 @@
+// utils/swal.ts
 import Swal from 'sweetalert2';
 
-export const showSuccessAlert = (message: string) => {
-    Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: message,
-    });
-};
+type AlertType = 'success' | 'error' | 'warning' | 'info' | 'question';
 
-export const showErrorAlert = (message: string) => {
-    Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: message,
-    });
-};
+interface SwalOptions {
+    title: string;
+    text?: string;
+    icon?: AlertType;
+    confirmButtonText?: string;
+    showCancelButton?: boolean;
+    cancelButtonText?: string;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+}
 
-export const showConfirmationDialog = async (message: string) => {
-    const result = await Swal.fire({
-        icon: 'question',
-        title: 'Are you sure?',
-        text: message,
-        showCancelButton: true,
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No',
-    });
+export const showSwal = (options: SwalOptions) => {
+    const {
+        title,
+        text,
+        icon = 'info',
+        confirmButtonText = 'OK',
+        showCancelButton = false,
+        cancelButtonText = 'Cancel',
+        onConfirm,
+        onCancel,
+    } = options;
 
-    return result.isConfirmed;
+    return Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        showCancelButton,
+        cancelButtonText,
+    }).then((result) => {
+        if (result.isConfirmed && onConfirm) {
+            onConfirm();
+        } else if (result.isDismissed && onCancel) {
+            onCancel();
+        }
+    });
 };

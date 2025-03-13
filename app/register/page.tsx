@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { User } from '../../modules/lib/definitions/user';
 import { httpPost } from '@/modules/lib/utils/https';
 import { updateState } from '@/modules/lib/utils/updateState';
+import { showSwal } from '@/modules/lib/utils/swal';
 
 export default function Register() {
     const router = useRouter();
@@ -29,6 +30,7 @@ export default function Register() {
             updateState(setFormData, key, value?.value ?? value);
         }
     };
+
 
     const handleSubmit = async (e: any) => {
         setLocalLoading(true);
@@ -67,10 +69,22 @@ export default function Register() {
         setLocalLoading(false);
         console.log('response:', response);
         if (response.statusReq && response.statusCode === 200) {
-            router.push('/login');
+            showSwal({
+                title: 'Berhasil Mendaftar',
+                text: 'Silahkan login untuk mengakses dashboard',
+                icon: 'success',
+                confirmButtonText: 'OK',
+            }).then(() => {
+                router.push('/login');
+            });
         } else {
-            const data = await response;
-            setError(data.sMessage || 'Update User gagal. Silahkan coba lagi.');
+            setError('Update User gagal. Silahkan coba lagi.');
+            showSwal({
+                title: 'Update User gagal. Silahkan coba lagi.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+            });
+
         }
     };
 
