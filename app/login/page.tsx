@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { User } from '../../modules/lib/definitions/user';
 import { useUser } from '../../context/UserContext';
 import { httpPost } from '../../modules/lib/utils/https';
+import { showSwal } from '@/modules/lib/utils/swal';
 
 export default function LoginPage() {
     const [modalData, setModalData] = useState<User>({
@@ -35,11 +36,19 @@ export default function LoginPage() {
         if (response.statusReq && response.statusCode === 200) {
             const responseData = await response.data;
             login(responseData.token); // Use the login function from context
-            router.push('/dashboard');
+            showSwal({
+                title: 'Login berhasil!',
+                icon: 'success',
+                confirmButtonText: 'OK',
+            }).then(() => {
+                router.push('/dashboard');
+            });
         } else {
-
-            const data = await response;
-            setError(data.sMessage || 'Login failed. Please try again.');
+            showSwal({
+                title: 'Login gagal. Silahkan coba lagi.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+            });
         }
     };
 

@@ -2,6 +2,7 @@
 
 import PageLayout from "@/components/shared/PageLayout";
 import { UserContext } from "@/context/UserContext";
+import { showSwal } from "@/modules/lib/utils/swal";
 import { useRouter } from 'next/navigation';
 import React, { useContext, useEffect, useState } from "react";
 
@@ -41,13 +42,29 @@ export default function Profile() {
 
             if (response.ok) {
                 setError(null);
-                router.push("/logout");
+                showSwal({
+                    title: 'Profile picture updated successfully! Need to relogin',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                }).then(() => {
+                    router.push("/logout");
+                });
             } else {
                 const errorData = await response.json();
                 setError(errorData.error || "Failed to upload file");
+                showSwal({
+                    title: 'Failed to upload file',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
             }
         } catch (err) {
             setError("Failed to upload file");
+            showSwal({
+                title: 'Failed to upload file',
+                icon: 'error',
+                confirmButtonText: 'OK',
+            });
         }
     };
 
