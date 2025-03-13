@@ -1,4 +1,3 @@
-// app/components/PdfDocument.tsx
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
@@ -59,9 +58,10 @@ interface PdfDocumentProps {
     title: string;
     data: Array<{ [key: string]: any }>; // Dynamic data structure
     splitBy?: string[]; // Array of column names to split the data by
+    columnHeaderMapping?: { [key: string]: string }; // Mapping of column keys to display names
 }
 
-const PdfDocument: React.FC<PdfDocumentProps> = ({ title, data, splitBy }) => {
+const PdfDocument: React.FC<PdfDocumentProps> = ({ title, data, splitBy, columnHeaderMapping }) => {
     // Get the keys (column names) from the first object in the data array
     const columns = data.length > 0 ? Object.keys(data[0]) : [];
 
@@ -110,7 +110,9 @@ const PdfDocument: React.FC<PdfDocumentProps> = ({ title, data, splitBy }) => {
                                 <View style={[styles.tableRow, styles.tableHeader]}>
                                     {tableColumns.map((column, index) => (
                                         <View key={index} style={styles.tableCol}>
-                                            <Text style={styles.tableCell}>{column}</Text>
+                                            <Text style={styles.tableCell}>
+                                                {columnHeaderMapping?.[column] || column} {/* Use mapping if available */}
+                                            </Text>
                                         </View>
                                     ))}
                                 </View>

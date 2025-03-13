@@ -2,5 +2,8 @@
     "editor.formatOnSave": true,
     "conventionalCommits.scopes": [
         "Component"
-    ]
+    ],
+    "search.exclude": {
+        "**/node_modules": false
+    }
 }
