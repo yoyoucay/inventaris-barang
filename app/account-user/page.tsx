@@ -49,6 +49,7 @@ export default function UserData() {
     const roles: OptionProps[] = [
         { value: 'user', label: 'User' },
         { value: 'admin', label: 'Admin' },
+        { value: 'kepsek', label: 'Kepala Sekolah' },
     ];
 
     const handleSubmit = async (e: any) => {

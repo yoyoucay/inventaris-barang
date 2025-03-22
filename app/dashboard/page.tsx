@@ -149,7 +149,7 @@ export default function Dashboard() {
                             </Card>
                         </div>
 
-                        <div className='grid grid-cols-2 gap-4'>
+                        <div className='grid grid-cols-1 gap-4'>
                             <Card>
                                 <h1 className="text-2xl font-bold mb-4">Kondisi Inventaris</h1>
                                 <Chart

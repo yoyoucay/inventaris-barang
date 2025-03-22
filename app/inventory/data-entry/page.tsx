@@ -5,6 +5,7 @@ import Card from '@/components/shared/Card';
 import DataTable from '@/components/shared/DataTable';
 import Divider from '@/components/shared/Divider';
 import FileUpload from '@/components/shared/FileUpload';
+import ImageUpload from '@/components/shared/ImageUpload';
 import InputText from '@/components/shared/InputText';
 import Loading from '@/components/shared/Loading';
 import Modal from '@/components/shared/Modal';
@@ -13,6 +14,7 @@ import SelectInput from '@/components/shared/SelectInput';
 import Textarea from '@/components/shared/TextArea';
 import { UserContext } from '@/context/UserContext';
 import { httpGet, httpPost } from '@/modules/lib/utils/https';
+import { showSwal } from '@/modules/lib/utils/swal';
 import { updateState } from '@/modules/lib/utils/updateState';
 import { useContext, useEffect, useState } from 'react';
 
@@ -23,7 +25,10 @@ interface YearOption {
 
 export default function MasterData() {
     const { user, isAuthenticated } = useContext(UserContext);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState({
+        entry: false,
+        photo: false
+    });
     const [formData, setFormData] = useState<any>({
         sKode: '',
         iSemester: { value: '', label: '' },
@@ -35,6 +40,7 @@ export default function MasterData() {
     });
     const [pageState, setPageState] = useState<number>(0);
     const [error, setError] = useState<string>('');
+    const [file, setFile] = useState<File[] | null>(null);
     const [rowData, setRowData] = useState<any>([]);
     const [localLoading, setLocalLoading] = useState<boolean>(false);
     const [barangOptions, setBarangOptions] = useState<YearOption[]>([]);
@@ -49,7 +55,13 @@ export default function MasterData() {
         }
     };
 
-    console.log('formData :', formData)
+    const handleFileChange = (files: File[] | null) => {
+        if (files) {
+            setFile(files)
+        } else {
+            console.log('No files selected.');
+        }
+    }
 
     const currentYear = new Date().getFullYear();
     const years: YearOption[] = Array.from({ length: currentYear - 2019 }, (_, i) => ({
@@ -72,8 +84,8 @@ export default function MasterData() {
             let data = formData.data.map((item: any) => {
                 return {
                     sKode: item["Kode"],
-                    iSemester: formData.iSemester,
-                    iYear: formData.iYear,
+                    iSemester: item["Semester"] === 'Ganjil' ? 1 : 2,
+                    iYear: item["Tahun"],
                     iCondition1: item["Baik"],
                     iCondition2: item["Kurang Baik"],
                     iCondition3: item["Rusak"],
@@ -127,8 +139,66 @@ export default function MasterData() {
         }
     };
 
+    const handlePhoto = async (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log('File : ', file)
+
+
+        if (!file || !user?.iUserID) {
+            setError("Please select a file and provide a valid user ID.");
+            return;
+        }
+
+        console.log('formData : ', formData)
+        const promises = file.map(async (f) => {
+            const formDataPOST: any = new FormData();
+            formDataPOST.append("file", f); // Append the file
+            formDataPOST.append("sKode", formData.sKode || '');
+            formDataPOST.append("iSemester", formData.iSemester === 'Ganjil' ? 1 : 2);
+            formDataPOST.append("iYear", formData.iYear || '');
+            formDataPOST.append("iUserID", user?.iUserID?.toString() || '');
+
+            // Send the FormData object
+            const response = await fetch(process.env.NEXT_PUBLIC_BASE_PATH + "/api/entry-photo", {
+                method: "POST",
+                body: formDataPOST, // No need to set Content-Type manually
+            });
+
+            if (response.ok) {
+                return { success: true, message: 'Entry Photo Inserted!' };
+            } else {
+                const errorData = await response.json();
+                return { success: false, message: errorData.error || "Failed to upload file" };
+            }
+        });
+
+        const results = await Promise.all(promises);
+
+        const successCount = results.filter((r) => r.success).length;
+        const failedCount = results.filter((r) => !r.success).length;
+
+        if (successCount === results.length) {
+            showSwal({
+                title: 'Entry Photo Inserted!',
+                icon: 'success',
+                confirmButtonText: 'OK',
+            })
+        } else {
+            setError(`Failed to upload file ${failedCount} of ${results.length}`);
+            showSwal({
+                title: 'Failed to upload file',
+                icon: 'error',
+                confirmButtonText: 'OK',
+            });
+        }
+    };
+
     const handleClose = () => {
-        setIsModalOpen(false);
+        setIsModalOpen((prev) => ({
+            ...prev,
+            entry: false,
+            photo: false
+        }));
         setError('');
         setFormData({
             sKode: '',
@@ -140,6 +210,7 @@ export default function MasterData() {
             iCondition3: "0",
         });
     };
+
     const getData = async () => {
         const response = httpGet('/api/entry');
         const data = await response;
@@ -162,7 +233,39 @@ export default function MasterData() {
         { headerName: 'Kurang Baik', field: 'iCondition2', sortable: true, filter: true },
         { headerName: 'Rusak', field: 'iCondition3', sortable: true, filter: true },
         { headerName: 'Jumlah', field: 'iSumCondition', sortable: true, filter: false },
+        // Insert action button , 'Add Photo' and 'Approve'
         { headerName: 'Deskripsi', field: 'sDesc', sortable: true, filter: true },
+        {
+            headerName: 'Actions',
+            cellRenderer: (params: any) => {
+                const handleAddPhoto = () => {
+                    setIsModalOpen({ entry: false, photo: true });
+                    setFormData({
+                        sKode: params.data.sKode,
+                        iSemester: params.data.iSemester,
+                        iYear: params.data.iYear,
+                        sDesc: params.data.sDesc,
+                        iCondition1: params.data.iCondition1,
+                        iCondition2: params.data.iCondition2,
+                        iCondition3: params.data.iCondition3,
+                    })
+                };
+
+                const handleApprove = () => {
+                    console.log('Approve clicked for row:', params.data);
+                    // Add your logic for approving here
+                };
+
+                return (
+                    <div>
+                        <button onClick={handleAddPhoto} style={{ marginRight: '5px' }}>Add Photo</button>
+                        <button onClick={handleApprove}>Approve</button>
+                    </div>
+                );
+            },
+            sortable: false,
+            filter: false,
+        },
     ];
 
     const fetchBarangOptions = async () => {
@@ -205,7 +308,7 @@ export default function MasterData() {
                                             </button>
                                         </a>
                                         <button
-                                            onClick={() => setIsModalOpen(true)}
+                                            onClick={() => setIsModalOpen({ entry: true, photo: false })}
                                             className="px-4 py-2 bg-blue-500 text-white rounded ml-2"
                                         >
                                             + Insert
@@ -223,7 +326,7 @@ export default function MasterData() {
                     </div>
 
                 </main>
-                <Modal isOpen={isModalOpen} onConfirm={(e: any) => handleSubmit(e)} onClose={() => handleClose()} title="Data Entry Inventory">
+                <Modal isOpen={isModalOpen.entry} onConfirm={(e: any) => handleSubmit(e)} onClose={() => handleClose()} title="Data Entry Inventory">
 
                     <div className='mb-4'>
                         <div className="grid grid-cols-2 gap-4">
@@ -306,6 +409,10 @@ export default function MasterData() {
                         onFileChange={(file) => handleChange('file', file)}
                         onFileRead={(data) => handleChange('data', data)}
                     />
+                </Modal>
+
+                <Modal isOpen={isModalOpen.photo} onConfirm={(e: any) => handlePhoto(e)} onClose={() => handleClose()} title="Tambah Photo Data Entry Inventory">
+                    <ImageUpload onFileChange={handleFileChange} />
                 </Modal>
             </div>
         </PageLayout>

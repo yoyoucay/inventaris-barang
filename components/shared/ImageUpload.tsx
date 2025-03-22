@@ -1,82 +1,80 @@
 import React, { useState } from 'react';
-import { readExcelFile } from './readExcelFile';
 
-interface FileUploadProps {
-    accept?: string; // e.g., ".xlsx,.xls"
-    onFileChange: (file: File | null) => void; // Callback when a file is selected
-    onFileRead?: (data: any[]) => void; // Callback when Excel data is read
+interface ImageUploadProps {
+    accept?: string; // e.g., "image/*"
+    onFileChange: (files: File[] | null) => void; // Callback when files are selected
     maxSize?: number; // Max file size in bytes (e.g., 5MB = 5 * 1024 * 1024)
-    allowedTypes?: string[]; // e.g., ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
+    allowedTypes?: string[]; // e.g., ["image/jpeg", "image/png"]
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({
-    accept = '.xlsx,.xls',
+const ImageUpload: React.FC<ImageUploadProps> = ({
+    accept = 'image/*',
     onFileChange,
-    onFileRead,
     maxSize = 5 * 1024 * 1024, // Default: 5MB
-    allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'], // Default: Excel
+    allowedTypes = ['image/jpeg', 'image/png', 'image/gif'], // Default: Common image types
 }) => {
     const [error, setError] = useState<string | null>(null);
-    const [fileName, setFileName] = useState('');
-    const [file, setFile] = useState<File | null>(null);
-    const [inputKey, setInputKey] = useState(0); // Add a key to force re-render the input field after clearing the file
+    const [fileNames, setFileNames] = useState<string[]>([]);
+    const [files, setFiles] = useState<File[] | null>(null);
+    const [inputKey, setInputKey] = useState(0); // Add a key to force re-render the input field after clearing the files
 
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newFile = event.target.files?.[0];
-        console.log('newFile :', newFile);
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newFiles = event.target.files;
+        if (newFiles && newFiles.length > 0) {
+            const validFiles: File[] = [];
+            const invalidFiles: string[] = [];
 
-        if (newFile) {
-            setFileName(newFile.name);
-
-            // Validate file type
-            if (!allowedTypes.includes(newFile.type)) {
-                setError('Only Excel files are allowed.');
-                onFileChange(null);
-                return;
-            }
-
-            // Validate file size
-            if (newFile.size > maxSize) {
-                setError(`File size exceeds the limit of ${maxSize / 1024 / 1024}MB.`);
-                onFileChange(null);
-                return;
-            }
-
-            setError(null);
-            setFile(newFile); // Store the selected file in state
-            onFileChange(newFile); // Pass the selected file to the parent component
-
-            // Read the Excel file and pass the data to the parent component
-            if (onFileRead) {
-                try {
-                    const data = await readExcelFile(newFile);
-                    onFileRead(data); // Pass the parsed data to the parent component
-                } catch (error) {
-                    console.error('Error reading Excel file:', error);
-                    setError('Failed to read the Excel file.');
+            // Validate each file
+            Array.from(newFiles).forEach((file) => {
+                // Validate file type
+                if (!allowedTypes.includes(file.type)) {
+                    invalidFiles.push(file.name);
+                    return;
                 }
+
+                // Validate file size
+                if (file.size > maxSize) {
+                    invalidFiles.push(file.name);
+                    return;
+                }
+
+                validFiles.push(file);
+            });
+
+            if (invalidFiles.length > 0) {
+                setError(
+                    `The following files are invalid (wrong type or size > ${maxSize / 1024 / 1024}MB): ${invalidFiles.join(
+                        ', ',
+                    )}`,
+                );
+            } else {
+                setError(null);
             }
+
+            setFileNames(validFiles.map((file) => file.name));
+            setFiles(validFiles); // Store the valid files in state
+            onFileChange(validFiles); // Pass the valid files to the parent component
         } else {
-            setFileName('');
-            setFile(null); // No file selected
+            setFileNames([]);
+            setFiles(null); // No files selected
             onFileChange(null);
         }
     };
 
     const handleClearInput = () => {
         setInputKey(inputKey + 1); // Update the key to force re-render the input field
-        setFile(null); // Clear the file state
-        setFileName('');
+        setFiles(null); // Clear the files state
+        setFileNames([]);
         onFileChange(null); // Pass null to the parent component
     };
 
     return (
         <>
             <p className="flex items-center mt-1 text-sm text-gray-500 dark:text-gray-400 justify-between">
-                {fileName}
-                {file && (
+                {fileNames.length > 0 ? fileNames.join(', ') : 'No files selected'}
+                {files && (
                     <button type="button" className="mt-2 text-sm text-red-500 dark:text-red-400" onClick={handleClearInput}>
-                        Hapus
+                        Clear
                     </button>
                 )}
             </p>
@@ -104,7 +102,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                         <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
                             <span className="font-semibold">Click to upload</span> or drag and drop
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Excel</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Images (JPEG, PNG, GIF)</p>
                     </div>
                     <input
                         id={`dropzone-file-${inputKey}`}
@@ -112,6 +110,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                         className="hidden"
                         onChange={handleFileChange}
                         accept={accept}
+                        multiple // Allow multiple file selection
                         onClick={(e: React.MouseEvent<HTMLInputElement>) => (e.target as HTMLInputElement).value = ''}
                     />
                 </label>
@@ -121,4 +120,4 @@ const FileUpload: React.FC<FileUploadProps> = ({
     );
 };
 
-export default FileUpload;
+export default ImageUpload;

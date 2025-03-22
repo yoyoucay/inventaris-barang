@@ -1,5 +1,5 @@
 export interface User {
-  iUserID?: number | null;
+  iUserID?: number;
   sUserName: string | null;
   sFullName: string | null;
   sEmail: string | null;

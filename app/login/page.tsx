@@ -54,9 +54,12 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-center bg-no-repeat bg-cover"
-            style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_PATH}/images/logo/logo.jpeg)`, backgroundPosition: 'center', backgroundSize: '1000px 1000px' }}>
+        >
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
                 <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+                <div className="flex justify-center">
+                    <img src={process.env.NEXT_PUBLIC_BASE_PATH + '/images/logo/logo.jpeg'} alt="Logo" className="w-32 h-32" />
+                </div>
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         {error}
@@ -105,6 +108,6 @@ export default function LoginPage() {
                     </a>
                 </p>
             </div>
-        </div>
+        </div >
     );
 }
