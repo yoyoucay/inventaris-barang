@@ -51,6 +51,12 @@ export const menuItems: MenuItem[] = [
     },
     {
         id: 5,
+        label: 'Manual Book',
+        icon: 'bx bxs-book',
+        href: '/manual-book',
+    },
+    {
+        id: 6,
         label: 'Logout',
         icon: 'bx bx-log-out',
         href: '/logout',
