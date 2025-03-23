@@ -10,6 +10,7 @@ import Card from '@/components/shared/Card';
 import Chart from '@/components/shared/Chart';
 import DataTable from '@/components/shared/DataTable';
 import { httpGet } from '@/modules/lib/utils/https';
+import { getParamsUrl } from '@/modules/lib/utils/functions';
 
 export default function Dashboard() {
     const { user, logout, isAuthenticated } = useContext(UserContext);
@@ -28,6 +29,7 @@ export default function Dashboard() {
             return;
         }
     }, [user]);
+    console.log('user : ', user)
 
 
     const columnDefs = [
@@ -45,7 +47,7 @@ export default function Dashboard() {
 
     const getData = async () => {
         let response: any;
-        response = await httpGet('/api/entry');
+        response = await httpGet(`/api/entry?${getParamsUrl({ iApproved: 1 })}`);
         let entry = await response;
 
         let rowData = entry;

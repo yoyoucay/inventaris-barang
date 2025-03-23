@@ -20,7 +20,7 @@ export const menuItems: MenuItem[] = [
         label: 'Inventory',
         icon: 'bx bx-package',
         href: '/inventory',
-        sRole: 'admin',
+        sRole: 'admin, kepsek',
         submenu: [
             {
                 id: 21,

@@ -24,9 +24,8 @@ export default function Reports() {
 
 
     const getData = async () => {
-        const response = httpGet(`/api/report`);
+        const response = httpGet(`/api/report?${getParamsUrl({ iApproved: 1 })}`);
         const data: any = await response;
-        console.log('select data : ', data)
         if (data.length > 0) {
             const result = data.sort((a: any, b: any) => {
                 if (a.iYear !== b.iYear) {

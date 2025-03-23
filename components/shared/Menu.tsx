@@ -82,8 +82,11 @@ const MenuItem = ({ item, isSidebarOpen, isHovered, sRole }: MenuItemProps) => {
 };
 
 export const MenuList = ({ isSidebarOpen, isHovered, sRole }: { isSidebarOpen: boolean, isHovered?: boolean, sRole: string }) => {
-    const filteredMenuItems = menuItems.filter((item) => !item.sRole || item.sRole === sRole);
-
+    // const filteredMenuItems = menuItems.filter((item) => !item.sRole || (item.sRole && item.sRole.split(',').includes(sRole)));
+    console.log('sRole : ', sRole)
+    const listitem = menuItems.filter((item: any) => item.sRole || item?.sRole?.split(',').includes(sRole))
+    const listitem2 = menuItems.filter((item: any) => !item.sRole)
+    const filteredMenuItems = [...listitem2, ...listitem].sort((a, b) => a.id - b.id);
     return (
         <ul className="space-y-2">
             {filteredMenuItems.map((item) => (

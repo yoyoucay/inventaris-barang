@@ -15,6 +15,7 @@ import SelectInput from '@/components/shared/SelectInput';
 import Textarea from '@/components/shared/TextArea';
 import { UserContext } from '@/context/UserContext';
 import { httpGet, httpPost } from '@/modules/lib/utils/https';
+import { PayloadProps } from '@/modules/lib/utils/payload';
 import { showSwal } from '@/modules/lib/utils/swal';
 import { updateState } from '@/modules/lib/utils/updateState';
 import { useContext, useEffect, useState } from 'react';
@@ -24,7 +25,7 @@ interface YearOption {
     label: string;
 }
 
-export default function MasterData() {
+export default function EntryData() {
     const { user, isAuthenticated } = useContext(UserContext);
     const [isModalOpen, setIsModalOpen] = useState({
         entry: false,
@@ -47,6 +48,63 @@ export default function MasterData() {
     const [imageName, setImageName] = useState<string[]>([]);
     const [localLoading, setLocalLoading] = useState<boolean>(false);
     const [barangOptions, setBarangOptions] = useState<YearOption[]>([]);
+
+    // Define column definitions
+    const columnDefs = [
+        { headerName: 'ID', field: 'iTransID', sortable: true, filter: true, hide: true },
+        { headerName: 'Kode', field: 'sKode', sortable: true, filter: true },
+        { headerName: 'Nama', field: 'sName', sortable: true, filter: true },
+        { headerName: 'Semester', field: 'iSemester', sortable: true, filter: true },
+        { headerName: 'Tahun', field: 'iYear', sortable: true, filter: true },
+        { headerName: 'Baik', field: 'iCondition1', sortable: true, filter: true },
+        { headerName: 'Kurang Baik', field: 'iCondition2', sortable: true, filter: true },
+        { headerName: 'Rusak', field: 'iCondition3', sortable: true, filter: true },
+        { headerName: 'Jumlah', field: 'iSumCondition', sortable: true, filter: false },
+        { headerName: 'Deskripsi', field: 'sDesc', sortable: true, filter: true },
+        {
+            headerName: 'Actions',
+            cellRenderer: (params: any) => {
+                if (params?.data) {
+                    const handPreview = () => {
+                        setIsModalOpen({ entry: false, photo: true });
+                        setFormData({
+                            sKode: params.data.sKode,
+                            iSemester: params.data.iSemester,
+                            iYear: params.data.iYear,
+                            sDesc: params.data.sDesc,
+                            iCondition1: params.data.iCondition1,
+                            iCondition2: params.data.iCondition2,
+                            iCondition3: params.data.iCondition3,
+                        })
+                    };
+
+                    return (
+                        <div className="flex items-center gap-2 justify-center">
+                            <button
+                                onClick={handPreview}
+                                className="px-2 bg-blue-500 text-white rounded ml-2 text-center"
+                            >
+                                Preview
+                            </button>
+                            {user?.sRole === 'kepsek' && !params.data.iApproved && (
+                                <button
+                                    onClick={() => handleApprove(params.data.iYear, params.data.iSemester)}
+                                    className="px-2 bg-green-500 text-white rounded ml-2"
+                                >
+                                    Approve
+                                </button>
+                            )}
+                        </div>
+                    );
+                } else {
+                    return null;
+                }
+            },
+            sortable: false,
+            filter: false,
+        },
+    ];
+
 
     const handleChange = (key: keyof typeof formData, value: any) => {
         if (typeof value === 'string') {
@@ -142,7 +200,7 @@ export default function MasterData() {
         }
     };
 
-    const handlePhoto = async (e: React.FormEvent) => {
+    const handleUploadPhoto = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('File : ', file)
 
@@ -186,6 +244,7 @@ export default function MasterData() {
                 icon: 'success',
                 confirmButtonText: 'OK',
             })
+            handleClose();
         } else {
             setError(`Failed to upload file ${failedCount} of ${results.length}`);
             showSwal({
@@ -214,6 +273,28 @@ export default function MasterData() {
         });
     };
 
+    const handleApprove = (iYear: string, iSemester: string) => {
+        console.log('handleApprove');
+        setLocalLoading(true);
+        const payload: PayloadProps = {
+            totalItems: 1,
+            items: [{
+                iYear: iYear,
+                iSemester: iSemester === 'Ganjil' ? 1 : 2,
+                iModifyBy: user?.iUserID
+            }]
+        };
+        httpPost('/api/entry-approve', payload).then((response) => {
+            console.log('response : ', response);
+            showSwal({
+                title: 'Entry Approved!',
+                icon: 'success',
+                confirmButtonText: 'OK',
+            })
+            setLocalLoading(false);
+        });
+    }
+
     const getData = async () => {
         const response = httpGet('/api/entry');
         const data = await response;
@@ -233,50 +314,6 @@ export default function MasterData() {
         getData();
     }, [localLoading]);
 
-    // Define column definitions
-    const columnDefs = [
-        { headerName: 'ID', field: 'iTransID', sortable: true, filter: true, hide: true },
-        { headerName: 'Kode', field: 'sKode', sortable: true, filter: true },
-        { headerName: 'Nama', field: 'sName', sortable: true, filter: true },
-        { headerName: 'Semester', field: 'iSemester', sortable: true, filter: true },
-        { headerName: 'Tahun', field: 'iYear', sortable: true, filter: true },
-        { headerName: 'Baik', field: 'iCondition1', sortable: true, filter: true },
-        { headerName: 'Kurang Baik', field: 'iCondition2', sortable: true, filter: true },
-        { headerName: 'Rusak', field: 'iCondition3', sortable: true, filter: true },
-        { headerName: 'Jumlah', field: 'iSumCondition', sortable: true, filter: false },
-        { headerName: 'Deskripsi', field: 'sDesc', sortable: true, filter: true },
-        {
-            headerName: 'Actions',
-            cellRenderer: (params: any) => {
-                const handleAddPhoto = () => {
-                    setIsModalOpen({ entry: false, photo: true });
-                    setFormData({
-                        sKode: params.data.sKode,
-                        iSemester: params.data.iSemester,
-                        iYear: params.data.iYear,
-                        sDesc: params.data.sDesc,
-                        iCondition1: params.data.iCondition1,
-                        iCondition2: params.data.iCondition2,
-                        iCondition3: params.data.iCondition3,
-                    })
-                };
-
-                const handleApprove = () => {
-                    console.log('Approve clicked for row:', params.data);
-                    // Add your logic for approving here
-                };
-
-                return (
-                    <div>
-                        <button onClick={handleAddPhoto} style={{ marginRight: '5px' }}>Add Photo</button>
-                        <button onClick={handleApprove}>Approve</button>
-                    </div>
-                );
-            },
-            sortable: false,
-            filter: false,
-        },
-    ];
 
     const fetchBarangOptions = async () => {
         try {
@@ -430,9 +467,10 @@ export default function MasterData() {
                     />
                 </Modal>
 
-                <Modal isOpen={isModalOpen.photo} onConfirm={(e: any) => handlePhoto(e)} onClose={() => handleClose()} title="Tambah Photo Data Entry Inventory">
+                <Modal isOpen={isModalOpen.photo} onConfirm={(e: any) => handleUploadPhoto(e)} onClose={() => handleClose()} title="Tambah Photo Data Entry Inventory">
                     {/* list image */}
                     <ImageList imageName={imageName} pathFolder={folderPath} />
+                    <Divider margin="my-4" />
                     <ImageUpload onFileChange={handleFileChange} />
                 </Modal>
             </div>
