@@ -5,6 +5,7 @@ import Card from '@/components/shared/Card';
 import DataTable from '@/components/shared/DataTable';
 import Divider from '@/components/shared/Divider';
 import FileUpload from '@/components/shared/FileUpload';
+import ImageList from '@/components/shared/ImageList';
 import ImageUpload from '@/components/shared/ImageUpload';
 import InputText from '@/components/shared/InputText';
 import Loading from '@/components/shared/Loading';
@@ -42,6 +43,8 @@ export default function MasterData() {
     const [error, setError] = useState<string>('');
     const [file, setFile] = useState<File[] | null>(null);
     const [rowData, setRowData] = useState<any>([]);
+    const [folderPath, setFolderPath] = useState<string>('');
+    const [imageName, setImageName] = useState<string[]>([]);
     const [localLoading, setLocalLoading] = useState<boolean>(false);
     const [barangOptions, setBarangOptions] = useState<YearOption[]>([]);
 
@@ -218,6 +221,14 @@ export default function MasterData() {
         setPageState(1)
     };
 
+    const getPhotoEntry = async (iYear: string, iSemester: string) => {
+        const response = httpGet('/api/entry-photo?iYear=' + iYear + '&iSemester=' + (iSemester === 'Ganjil' ? '1' : '2'));
+        const data: any = await response;
+        console.log('data photo entry : ', data);
+        setImageName(data.map((item: any) => item.sImgName));
+        setFolderPath(process.env.NEXT_PUBLIC_BASE_PATH + '/entry/' + formData.sKode + '-' + formData.iYear + '-' + (formData.iSemester === 'Ganjil' ? '1' : '2'));
+    };
+
     useEffect(() => {
         getData();
     }, [localLoading]);
@@ -233,7 +244,6 @@ export default function MasterData() {
         { headerName: 'Kurang Baik', field: 'iCondition2', sortable: true, filter: true },
         { headerName: 'Rusak', field: 'iCondition3', sortable: true, filter: true },
         { headerName: 'Jumlah', field: 'iSumCondition', sortable: true, filter: false },
-        // Insert action button , 'Add Photo' and 'Approve'
         { headerName: 'Deskripsi', field: 'sDesc', sortable: true, filter: true },
         {
             headerName: 'Actions',
@@ -285,6 +295,15 @@ export default function MasterData() {
         fetchBarangOptions();
     }, [formData.sKode]);
 
+    useEffect(() => {
+        if (isModalOpen.photo) {
+            getPhotoEntry(formData.iYear, formData.iSemester);
+
+        }
+    }, [isModalOpen.photo]);
+
+    console.log('folderPath : ', folderPath);
+    console.log('imageName : ', imageName)
 
     return pageState > 0 ? (
         <PageLayout>
@@ -412,6 +431,8 @@ export default function MasterData() {
                 </Modal>
 
                 <Modal isOpen={isModalOpen.photo} onConfirm={(e: any) => handlePhoto(e)} onClose={() => handleClose()} title="Tambah Photo Data Entry Inventory">
+                    {/* list image */}
+                    <ImageList imageName={imageName} pathFolder={folderPath} />
                     <ImageUpload onFileChange={handleFileChange} />
                 </Modal>
             </div>

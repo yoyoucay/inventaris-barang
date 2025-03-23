@@ -21,6 +21,15 @@ export async function POST(request: Request) {
     }
 }
 
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const year = searchParams.get('iYear');
+    const semester = searchParams.get('iSemester');
+    console.log('GET :', { year, semester });
+    const result = await getPhotoEntry(year, semester);
+    return NextResponse.json(result);
+}
+
 export async function crudEntry(files: File, sKode: string, iYear: string, iSemester: string, iUserID: string) {
     console.log('Files:', files);
     console.log('sKode:', sKode);
@@ -79,13 +88,26 @@ export async function crudEntry(files: File, sKode: string, iYear: string, iSeme
     }
 }
 
-export async function GET() {
-    const users = await getEntry();
-    return NextResponse.json(users);
-}
 
-// Read all users
-export async function getEntry() {
-    const [rows] = await pool.query('SELECT * FROM v_entry_rpt');
+export async function getPhotoEntry(year: string | null, semester: string | null) {
+    console.log('getPhotoEntry :', { year, semester });
+    let query = 'SELECT * FROM tumx04';
+    const conditions = [];
+
+    if (year) {
+        conditions.push(`iYear = ${year}`);
+    }
+    if (semester) {
+        conditions.push(`iSemester = '${semester}' COLLATE utf8mb4_unicode_ci`);
+    }
+
+    if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    console.log('query :', query);
+
+    const [rows] = await pool.query(query);
+    console.log('result :', rows);
     return rows;
 }

@@ -23,8 +23,6 @@ export default function Navbar({ toggleSidebar, isSidebarOpen }: NavbarProps) {
         return path;
     };
 
-    console.log('user : ', user)
-
     return (
         <header className={`fixed top-0 flex gap-4 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'left-72' : 'left-22'} right-0 bg-white shadow-md p-3 z-10`}>
             <div className="flex w-full gap-2 justify-between items-center">
