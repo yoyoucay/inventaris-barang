@@ -288,7 +288,7 @@ export default function EntryData() {
                             <>
                                 <div className="flex items-center gap-2 justify-center">
                                     <button
-                                        onClick={() => handPreview(params.data)}
+                                        onClick={() => handPreview()}
                                         className="px-2 bg-blue-500 text-white rounded ml-2 text-center"
                                     >
                                         Preview
