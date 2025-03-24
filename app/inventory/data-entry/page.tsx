@@ -48,62 +48,7 @@ export default function EntryData() {
     const [imageName, setImageName] = useState<string[]>([]);
     const [localLoading, setLocalLoading] = useState<boolean>(false);
     const [barangOptions, setBarangOptions] = useState<YearOption[]>([]);
-
-    // Define column definitions
-    const columnDefs = [
-        { headerName: 'ID', field: 'iTransID', sortable: true, filter: true, hide: true },
-        { headerName: 'Kode', field: 'sKode', sortable: true, filter: true },
-        { headerName: 'Nama', field: 'sName', sortable: true, filter: true },
-        { headerName: 'Semester', field: 'iSemester', sortable: true, filter: true },
-        { headerName: 'Tahun', field: 'iYear', sortable: true, filter: true },
-        { headerName: 'Baik', field: 'iCondition1', sortable: true, filter: true },
-        { headerName: 'Kurang Baik', field: 'iCondition2', sortable: true, filter: true },
-        { headerName: 'Rusak', field: 'iCondition3', sortable: true, filter: true },
-        { headerName: 'Jumlah', field: 'iSumCondition', sortable: true, filter: false },
-        { headerName: 'Deskripsi', field: 'sDesc', sortable: true, filter: true },
-        {
-            headerName: 'Actions',
-            cellRenderer: (params: any) => {
-                if (params?.data) {
-                    const handPreview = () => {
-                        setIsModalOpen({ entry: false, photo: true });
-                        setFormData({
-                            sKode: params.data.sKode,
-                            iSemester: params.data.iSemester,
-                            iYear: params.data.iYear,
-                            sDesc: params.data.sDesc,
-                            iCondition1: params.data.iCondition1,
-                            iCondition2: params.data.iCondition2,
-                            iCondition3: params.data.iCondition3,
-                        })
-                    };
-
-                    return (
-                        <div className="flex items-center gap-2 justify-center">
-                            <button
-                                onClick={handPreview}
-                                className="px-2 bg-blue-500 text-white rounded ml-2 text-center"
-                            >
-                                Preview
-                            </button>
-                            {user?.sRole === 'kepsek' && !params.data.iApproved && (
-                                <button
-                                    onClick={() => handleApprove(params.data.iYear, params.data.iSemester)}
-                                    className="px-2 bg-green-500 text-white rounded ml-2"
-                                >
-                                    Approve
-                                </button>
-                            )}
-                        </div>
-                    );
-                } else {
-                    return null;
-                }
-            },
-            sortable: false,
-            filter: false,
-        },
-    ];
+    const [columnDefs, setColumnDefs] = useState<any>(undefined);
 
 
     const handleChange = (key: keyof typeof formData, value: any) => {
@@ -311,7 +256,64 @@ export default function EntryData() {
     };
 
     useEffect(() => {
+        setColumnDefs([
+            { headerName: 'ID', field: 'iTransID', sortable: true, filter: true, hide: true },
+            { headerName: 'Kode', field: 'sKode', sortable: true, filter: true },
+            { headerName: 'Nama', field: 'sName', sortable: true, filter: true },
+            { headerName: 'Semester', field: 'iSemester', sortable: true, filter: true },
+            { headerName: 'Tahun', field: 'iYear', sortable: true, filter: true },
+            { headerName: 'Baik', field: 'iCondition1', sortable: true, filter: true },
+            { headerName: 'Kurang Baik', field: 'iCondition2', sortable: true, filter: true },
+            { headerName: 'Rusak', field: 'iCondition3', sortable: true, filter: true },
+            { headerName: 'Jumlah', field: 'iSumCondition', sortable: true, filter: false },
+            { headerName: 'Deskripsi', field: 'sDesc', sortable: true, filter: true },
+            {
+                headerName: 'Actions',
+                cellRenderer: (params: any) => {
+                    if (params?.data) {
+                        const handPreview = () => {
+                            setIsModalOpen({ entry: false, photo: true });
+                            setFormData({
+                                sKode: params.data.sKode,
+                                iSemester: params.data.iSemester,
+                                iYear: params.data.iYear,
+                                sDesc: params.data.sDesc,
+                                iCondition1: params.data.iCondition1,
+                                iCondition2: params.data.iCondition2,
+                                iCondition3: params.data.iCondition3,
+                            })
+                        };
+
+                        return (
+                            <>
+                                <div className="flex items-center gap-2 justify-center">
+                                    <button
+                                        onClick={() => handPreview(params.data)}
+                                        className="px-2 bg-blue-500 text-white rounded ml-2 text-center"
+                                    >
+                                        Preview
+                                    </button>
+                                    {user?.sRole === 'kepsek' && !params.data.iApproved && (
+                                        <button
+                                            onClick={() => handleApprove(params.data.iYear, params.data.iSemester)}
+                                            className="px-2 bg-green-500 text-white rounded ml-2"
+                                        >
+                                            Approve
+                                        </button>
+                                    )}
+                                </div>
+                            </>
+                        );
+                    } else {
+                        return null;
+                    }
+                },
+                sortable: false,
+                filter: false,
+            },
+        ]);
         getData();
+
     }, [localLoading]);
 
 
@@ -338,9 +340,6 @@ export default function EntryData() {
 
         }
     }, [isModalOpen.photo]);
-
-    console.log('folderPath : ', folderPath);
-    console.log('imageName : ', imageName)
 
     return pageState > 0 ? (
         <PageLayout>
