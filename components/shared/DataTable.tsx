@@ -2,9 +2,13 @@
 'use client'; // Mark this as a Client Component
 
 import React from 'react';
-import { AgGridReact } from 'ag-grid-react';
 import { AllCommunityModule, ModuleRegistry, provideGlobalGridOptions, themeQuartz } from 'ag-grid-community';
+import dynamic from 'next/dynamic';
 
+const AgGridReact = dynamic(
+    () => import('ag-grid-react').then((mod) => mod.AgGridReact),
+    { ssr: false }
+);
 // Mark all grids as using legacy themes
 provideGlobalGridOptions({
     theme: "legacy",
